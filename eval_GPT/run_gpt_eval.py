@@ -211,8 +211,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-k', '--openai_key', default='',
                         help='your openai api_key')
-    parser.add_argument('-d', '--data_name', default='laptops', choices=['restaurants', 'laptops'],
-                        help='eval on which semeval data name')
+    parser.add_argument('-d', '--data_name', default='laptops', help='eval on which semeval data name')
     parser.add_argument('-f', '--config', default='../config/config.yaml', help='config file')
     # parser.add_argument('-s', '--save_file', default='laptops', help='file name to save the output of reasoning trace')
     args = parser.parse_args()
