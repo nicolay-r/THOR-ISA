@@ -47,9 +47,10 @@ class THoRFrameworkService:
             pickle.dump(content, f)
 
     @staticmethod
-    def write_dataset(target_template, entries_it):
+    def write_dataset(target_template, entries_it, label_map):
         """ THoR-related service for sampling.
         """
+        assert(isinstance(label_map, dict))
 
         records = []
         for e in entries_it:
@@ -58,6 +59,8 @@ class THoRFrameworkService:
             assert(isinstance(e[1], str))   # Entity
             assert(isinstance(e[2], int))   # Explicit Label
             assert(isinstance(e[3], int))   # Implicit label
+            e[2] = label_map[e[2]]
+            e[3] = label_map[e[3]]
             records.append(e)
 
         THoRFrameworkService.__write(target=f"{target_template}.pkl", content=records)
