@@ -19,12 +19,13 @@ if __name__ == "__main__":
         # Data related to RuSentNE competitions.
         join(DATA_DIR, "rusentne2023/train_en.csv"): "https://www.dropbox.com/scl/fi/szj5j87f6w3ershnfh39x/train_data_en.csv?rlkey=h6ve617kl3o8g57otbt3yzamv&dl=1",
         join(DATA_DIR, "rusentne2023/valid_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_valid_data_link.txt"))[-1],
+        join(DATA_DIR, "rusentne2023/final_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_final_data_link.txt"))[-1],
     }
 
     pickle_rusentne2023_data = {
         join(DATA_DIR, "rusentne2023/Rusentne2023_train"): join(DATA_DIR, "rusentne2023/train_en.csv"),
         join(DATA_DIR, "rusentne2023/Rusentne2023_valid"): join(DATA_DIR, "rusentne2023/valid_en.csv"),
-        join(DATA_DIR, "rusentne2023/Rusentne2023_test"): join(DATA_DIR, "rusentne2023/train_en.csv"),
+        join(DATA_DIR, "rusentne2023/Rusentne2023_test"): join(DATA_DIR, "rusentne2023/final_en.csv"),
     }
 
     if not os.path.exists(DATA_DIR):
