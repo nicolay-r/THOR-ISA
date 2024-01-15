@@ -3,7 +3,7 @@ preprocessed_dir: 'data/preprocessed'
 target_dir: 'data/save'
 model_path: 'google/flan-t5-base'
 model_size: 'base'
-label_list:  ['positive', 'negative', 'neutral']
+label_list:  ['neutral', 'positive', 'negative']
 emb_dim: 300
 output_channels: 100
 speaker_emb_dims: 300
