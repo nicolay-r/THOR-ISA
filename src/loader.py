@@ -137,37 +137,17 @@ class Preprocessor:
     def read_file(self):
         dataname = self.config.dataname
         train_file = os.path.join(self.config.data_dir, dataname,
-                                  '{}_Train_v2_Implicit_Labeled_preprocess_finetune.pkl'.format(dataname.capitalize()))
+                                  '{}_train.pkl'.format(dataname.capitalize()))
+        valid_file = os.path.join(self.config.data_dir, dataname,
+                                 '{}_valid.pkl'.format(dataname.capitalize()))
         test_file = os.path.join(self.config.data_dir, dataname,
-                                 '{}_Test_Gold_Implicit_Labeled_preprocess_finetune.pkl'.format(dataname.capitalize()))
+                                 '{}_test.pkl'.format(dataname.capitalize()))
         train_data = pkl.load(open(train_file, 'rb'))
+        valid_data = pkl.load(open(valid_file, 'rb'))
         test_data = pkl.load(open(test_file, 'rb'))
-        ids = np.arange(len(train_data))
-        np.random.shuffle(ids)
-        lens = 150
-        valid_data = {w: v[-lens:] for w, v in train_data.items()}
-        train_data = {w: v[:-lens] for w, v in train_data.items()}
 
-        return train_data, valid_data, test_data
+        return [train_data, valid_data, test_data]
 
-    def transformer2indices(self, cur_data):
-        res = []
-        for i in range(len(cur_data['raw_texts'])):
-            text = cur_data['raw_texts'][i]
-            target = cur_data['raw_aspect_terms'][i]
-            implicit = 0
-            if 'implicits' in cur_data:
-                implicit = cur_data['implicits'][i]
-            label = cur_data['labels'][i]
-            implicit = int(implicit)
-            res.append([text, target, label, implicit])
-        return res
 
     def forward(self):
-        modes = 'train valid test'.split()
-        dataset = self.read_file()
-        res = []
-        for i, mode in enumerate(modes):
-            data = self.transformer2indices(dataset[i])
-            res.append(data)
-        return res
+        return self.read_file()
