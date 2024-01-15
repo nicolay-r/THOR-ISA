@@ -4,7 +4,6 @@ target_dir: 'data/save'
 model_path: 'google/flan-t5-base'
 model_size: 'base'
 label_list:  ['positive', 'negative', 'neutral']
-label_map: [1, -1, 0]
 emb_dim: 300
 output_channels: 100
 speaker_emb_dims: 300
