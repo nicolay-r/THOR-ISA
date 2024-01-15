@@ -23,6 +23,7 @@ class PromptTrainer:
 
     def train(self):
         best_score, best_iter = 0, -1
+        epoch = -1
         for epoch in tqdm(range(self.config.epoch_size)):
             self.model.global_epoch = epoch
             self.global_epoch = epoch
