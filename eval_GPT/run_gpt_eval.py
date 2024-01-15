@@ -121,7 +121,7 @@ def eval_run(args):
     config = AttrDict(yaml.load(open(args.config, 'r', encoding='utf-8'), Loader=yaml.FullLoader))
 
     label_list = ['positive', 'negative', 'neutral']
-    label_dict = {w: i for i, w in enumerate(label_list)}
+    label_dict = {w: config.label_map[i] for i, w in enumerate(config.label_list)}
 
     data = prepare_data(args, config)
 
