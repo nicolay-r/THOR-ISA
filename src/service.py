@@ -2,6 +2,7 @@ import csv
 import os
 import pickle
 import sys
+from zipfile import ZipFile
 
 import requests
 from tqdm import tqdm
@@ -88,3 +89,16 @@ class CsvService:
 
                 # Optionally attach row_id to the content.
                 yield [row_id] + content if return_row_ids else content
+
+
+class RuSentNE2023CodalabService:
+
+    @staticmethod
+    def save_submission(target, labels):
+        assert(isinstance(labels, list))
+        for l in labels:
+            assert (isinstance(l, int))
+
+        with ZipFile(target, "w") as zip_file:
+            results = "\n".join([str(l) for l in labels])
+            zip_file.writestr(f'baseline_results.txt', results)
