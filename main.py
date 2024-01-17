@@ -54,6 +54,7 @@ class Template:
             r = trainer.final_infer(dataLoader=None, epoch=e_load)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.csv"
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
+            return
 
         print("Fine-tuning mode for training.")
         trainer.train()
