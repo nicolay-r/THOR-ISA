@@ -2,7 +2,7 @@ import csv
 import os
 import pickle
 import sys
-from zipfile import ZipFile
+from collections import Counter
 
 import requests
 from tqdm import tqdm
@@ -89,3 +89,22 @@ class CsvService:
 
                 # Optionally attach row_id to the content.
                 yield [row_id] + content if return_row_ids else content
+
+    @staticmethod
+    def write(target, lines_it, header=None, notify=True):
+        assert(isinstance(header, list) or header is None)
+
+        counter = Counter()
+        with open(target, "w") as f:
+            w = csv.writer(f, delimiter="\t", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            if header is not None:
+                w.writerow(header)
+
+            for content in lines_it:
+                w.writerow(content)
+                counter["written"] += 1
+
+        if notify:
+            print(f"Saved: {target}")
+            print("Total rows: {}".format(counter["written"]))

@@ -1,5 +1,4 @@
 import argparse
-import json
 
 import yaml
 import torch
@@ -7,6 +6,7 @@ from attrdict import AttrDict
 import pandas as pd
 
 from download_data import DS_NAME
+from src.service import CsvService
 from src.utils import set_seed, load_params_LLM
 from src.loader import MyDataLoader
 from src.model import LLMBackbone
@@ -51,10 +51,8 @@ class Template:
         if self.config.infer_iter >= 0:
             print("Final inference.")
             r = trainer.final_infer(dataLoader=None, epoch=self.config.infer_iter)
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.json"
-            with open(submission_name, "w") as outfile:
-                outfile.write(json.dumps(r, indent=4))
-            return
+            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.csv"
+            CsvService.write(target=submission_name, lines_it=r["total"], header=["label"])
 
         print("Fine-tuning mode for training.")
         trainer.train()
