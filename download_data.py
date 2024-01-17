@@ -1,31 +1,43 @@
+import argparse
 import os
 from os.path import dirname, join, realpath
 
-from src.service import CsvService, THoRFrameworkService, TxtService, download
+from src.service import CsvService, THoRFrameworkService, download
 
 
-def convert_rusentne2023_dataset(src, target):
+current_dir = dirname(realpath(__file__))
+DATA_DIR = join(current_dir, "data")
+
+DS_NAME = "se24"
+DS_DIR = join(DATA_DIR, DS_NAME)
+
+
+def convert_se2024_dataset(src, target):
     records_it = [[item[0], item[1], int(item[2]), int(item[3])]
-                  for item in CsvService.read(target=src, skip_header=True, cols=["sentence", "entity", "label", "label"])]
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it, label_map={1: 1, 0: 0, -1: 2},
+                  for item in CsvService.read(target=src, skip_header=True,
+                                              cols=["conversation", "source", "label", "label"])]
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it, label_map={1: 1, 0: 0},
                                        is_implicit=lambda origin_label: origin_label != 0)
 
 
 if __name__ == "__main__":
-    current_dir = dirname(realpath(__file__))
-    DATA_DIR = join(current_dir, "data")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--train', dest="train_data", type=str)
+    parser.add_argument('--valid', dest="valid_data", type=str)
+    parser.add_argument('--test', dest="test_data", type=str)
+    args = parser.parse_args()
 
     data = {
-        # Data related to RuSentNE competitions.
-        join(DATA_DIR, "rusentne2023/train_en.csv"): "https://www.dropbox.com/scl/fi/szj5j87f6w3ershnfh39x/train_data_en.csv?rlkey=h6ve617kl3o8g57otbt3yzamv&dl=1",
-        join(DATA_DIR, "rusentne2023/valid_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_valid_data_link.txt"))[-1],
-        join(DATA_DIR, "rusentne2023/final_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_final_data_link.txt"))[-1],
+        join(DS_DIR, "train_en.csv"): args.train_data,
+        join(DS_DIR, "valid_en.csv"): args.valid_data,
+        join(DS_DIR, "final_en.csv"): args.test_data,
     }
 
-    pickle_rusentne2023_data = {
-        join(DATA_DIR, "rusentne2023/Rusentne2023_train"): join(DATA_DIR, "rusentne2023/train_en.csv"),
-        join(DATA_DIR, "rusentne2023/Rusentne2023_valid"): join(DATA_DIR, "rusentne2023/valid_en.csv"),
-        join(DATA_DIR, "rusentne2023/Rusentne2023_test"): join(DATA_DIR, "rusentne2023/final_en.csv"),
+    pickle_se2024_data = {
+        join(DS_DIR, f"{DS_NAME}_train"): join(DS_DIR, "train_en.csv"),
+        join(DS_DIR, f"{DS_NAME}_valid"): join(DS_DIR, "valid_en.csv"),
+        join(DS_DIR, f"{DS_NAME}_test"): join(DS_DIR, "final_en.csv"),
     }
 
     if not os.path.exists(DATA_DIR):
@@ -34,5 +46,5 @@ if __name__ == "__main__":
     for target, url in data.items():
         download(dest_file_path=target, source_url=url)
 
-    for target, src in pickle_rusentne2023_data.items():
-        convert_rusentne2023_dataset(src, target)
+    for target, src in pickle_se2024_data.items():
+        convert_se2024_dataset(src, target)
