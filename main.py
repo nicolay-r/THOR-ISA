@@ -1,5 +1,5 @@
 import argparse
-from os.path import join
+import json
 
 import yaml
 import torch
@@ -48,11 +48,12 @@ class Template:
             r = trainer.evaluate_step(self.testLoader, 'test')
             print(r)
             return
-        if self.config.eval_iter >= 0:
-            print("Final evaluation.")
-            r = trainer.final_evaluate(self.config.eval_iter)
-            print(r)
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
+        if self.config.infer_iter >= 0:
+            print("Final inference.")
+            r = trainer.final_infer(dataLoader=None, epoch=self.config.infer_iter)
+            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.json"
+            with open(submission_name, "w") as outfile:
+                outfile.write(json.dumps(r, indent=4))
             return
 
         print("Fine-tuning mode for training.")
@@ -71,6 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('-z', '--zero_shot', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
     parser.add_argument('-e', '--eval_iter', default=-1, type=int, help='running evaluation on specific index')
+    parser.add_argument('-i', '--infer_iter', default=-1, type=int, help='running infer on specific index')
     parser.add_argument('-d', '--data_name', default=DS_NAME)
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
