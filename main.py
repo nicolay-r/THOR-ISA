@@ -45,7 +45,7 @@ class Template:
 
         if self.config.zero_shot == True:
             print("Zero-shot mode for evaluation.")
-            r = trainer.evaluate_step(self.testLoader, 'test')
+            r = trainer.evaluate_step(self.validLoader, 'valid')
             print(r)
             return
         if self.config.infer_iter >= 0:

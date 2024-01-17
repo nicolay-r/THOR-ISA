@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn as nn
 
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score
 from collections import defaultdict
 from src.utils import prompt_for_opinion_inferring, prompt_for_polarity_inferring, prompt_for_polarity_label
 
@@ -88,7 +88,7 @@ class PromptTrainer:
         PATH = self.save_name.format(epoch)
         self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
         self.model.eval()
-        res = self.evaluate_step(self.test_loader, mode='test')
+        res = self.evaluate_step(self.valid_loader, mode='valid')
         self.add_instance(res)
         return res
 
@@ -107,7 +107,7 @@ class PromptTrainer:
         PATH = self.save_name.format(epoch)
         self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
         self.model.eval()
-        res = self.infer_step(self.test_loader if dataLoader is None else dataLoader)
+        res = self.infer_step(self.valid_loader if dataLoader is None else dataLoader)
         self.add_instance(res)
         return res
 
@@ -328,7 +328,7 @@ class ThorTrainer:
         PATH = self.save_name.format(epoch)
         self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
         self.model.eval()
-        res = self.evaluate_step(self.test_loader, mode='test')
+        res = self.evaluate_step(self.valid_loader, mode='valid')
         self.add_instance(res)
         return res
 
