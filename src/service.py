@@ -64,6 +64,7 @@ class THoRFrameworkService:
             e[3] = 1 if is_implicit(e[3]) else 0
             records.append(e)
 
+        print(f"Records written: {len(records)}")
         THoRFrameworkService.__write(target=f"{target_template}.pkl", content=records)
 
 
