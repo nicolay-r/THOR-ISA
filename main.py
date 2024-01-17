@@ -48,9 +48,9 @@ class Template:
             r = trainer.evaluate_step(self.validLoader, 'valid')
             print(r)
             return
-        if self.config.infer_iter >= 0:
+        if self.config.infer_iter >= -1:
             print("Final inference.")
-            r = trainer.final_infer(dataLoader=None, epoch=self.config.infer_iter)
+            r = trainer.final_infer(dataLoader=None, epoch=self.config.infer_iter if self.config.infer_iter >= 0 else None)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.csv"
             CsvService.write(target=submission_name, lines_it=r["total"], header=["label"])
 
@@ -69,8 +69,7 @@ if __name__ == '__main__':
                         help='with one-step prompt or multi-step thor reasoning')
     parser.add_argument('-z', '--zero_shot', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
-    parser.add_argument('-e', '--eval_iter', default=-1, type=int, help='running evaluation on specific index')
-    parser.add_argument('-i', '--infer_iter', default=-1, type=int, help='running infer on specific index')
+    parser.add_argument('-i', '--infer_iter', default=-2, type=int, help='running infer on specific index')
     parser.add_argument('-d', '--data_name', default=DS_NAME)
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()

@@ -104,8 +104,9 @@ class PromptTrainer:
         return result
 
     def final_infer(self, dataLoader, epoch=0):
-        PATH = self.save_name.format(epoch)
-        self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
+        if epoch is not None:
+            PATH = self.save_name.format(epoch)
+            self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
         self.model.eval()
         res = self.infer_step(self.valid_loader if dataLoader is None else dataLoader)
         self.add_instance(res)
