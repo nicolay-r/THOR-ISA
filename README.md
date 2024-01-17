@@ -110,7 +110,7 @@ Use the [main.py](main.py) script with command-line arguments to run the Flan-T5
 
 
 ```bash
-python main.py -c <cuda_index> -r [thor|prompt] -d [restaurants|laptops] -z [True|False] -f <config_file>
+python main.py -c <cuda_index> -r [thor|prompt] -d rusentne2023 -z [True|False] -f <config_file>
 ```
 Some important arguments:
 
@@ -130,7 +130,7 @@ Configurate more parameters in [config.yaml](config%2Fconfig.yaml) file.
 Go to the [eval_GPT](eval_GPT) fold, and run the [run_gpt_eval.py](eval_GPT%2Frun_gpt_eval.py) script:
 
 ```bash
-python run_gpt_eval.py -k <openai_key> -d [restaurants|laptops]
+python run_gpt_eval.py -k <openai_key> -d rusentne2023 
 ```
 
 Indicating your openai key. 
