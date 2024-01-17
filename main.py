@@ -49,10 +49,11 @@ class Template:
             print(r)
             return
         if self.config.infer_iter >= -1:
-            print("Final inference.")
-            r = trainer.final_infer(dataLoader=None, epoch=self.config.infer_iter if self.config.infer_iter >= 0 else None)
+            e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
+            print(f"Final inference. Loading state: {e_load}")
+            r = trainer.final_infer(dataLoader=None, epoch=e_load)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.csv"
-            CsvService.write(target=submission_name, lines_it=r["total"], header=["label"])
+            CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
 
         print("Fine-tuning mode for training.")
         trainer.train()
