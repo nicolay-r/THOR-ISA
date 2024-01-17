@@ -52,7 +52,7 @@ class Template:
             e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
             print(f"Final inference. Loading state: {e_load}")
             r = trainer.final_infer(dataLoader=self.testLoader, epoch=e_load)
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.infer_iter}.csv"
+            submission_name = f"{self.config.model_path.replace('/', '_')}-{e_load}.csv"
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
             return
 
