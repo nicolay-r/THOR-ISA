@@ -19,7 +19,7 @@ def convert_se24_prompt_dataset(src, target):
     records_it = [[item[0], item[1], int(item[2]), int(item[3])]
                   for item in CsvService.read(target=src, skip_header=True,
                                               cols=["prompt", "source", "label", "label"])]
-    no_label_uint = config.labels.index(config.no_label)
+    no_label_uint = config.label_list.index(config.no_label)
     print(f"No label: {no_label_uint}")
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
                                        is_implicit=lambda origin_label: origin_label != no_label_uint)

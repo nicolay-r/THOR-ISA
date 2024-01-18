@@ -147,7 +147,7 @@ class PromptTrainer:
     def report_score(self, mode='valid'):
         res = {}
         res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.labels))))
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
         res['default'] = res['F1']
         res['mode'] = mode
         for k, v in res.items():
@@ -369,7 +369,7 @@ class ThorTrainer:
     def report_score(self, mode='valid'):
         res = {}
         res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.labels))))
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
         res['default'] = res['F1']
         res['mode'] = mode
         for k, v in res.items():
