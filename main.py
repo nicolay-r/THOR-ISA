@@ -43,6 +43,8 @@ class Template:
         else:
             raise 'Should choose a correct reasoning mode: prompt or thor.'
 
+        epoch_from = 0
+
         if self.config.zero_shot == True:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.validLoader, 'valid')
@@ -55,9 +57,14 @@ class Template:
             submission_name = f"{self.config.model_path.replace('/', '_')}-{e_load}.csv"
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
             return
+        if self.config.load_iter >= 0:
+            e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
+            print(f"Loading the pre-trained state: {e_load}")
+            trainer.load(self.config.load_iter)
+            epoch_from = e_load + 1
 
         print("Fine-tuning mode for training.")
-        trainer.train()
+        trainer.train(epoch_from=epoch_from)
         lines = trainer.lines
 
         df = pd.DataFrame(lines)
@@ -72,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('-z', '--zero_shot', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
     parser.add_argument('-i', '--infer_iter', default=-2, type=int, help='running infer on specific index')
+    parser.add_argument('-l', '--load_iter', default=-1, type=int, help='load a state on specific index')
     parser.add_argument('-d', '--data_name', default=DS_NAME)
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
