@@ -58,7 +58,7 @@ class Template:
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
             return
         if self.config.load_iter >= 0:
-            e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
+            e_load = self.config.load_iter if self.config.load_iter >= 0 else None
             print(f"Loading the pre-trained state: {e_load}")
             trainer.load(self.config.load_iter)
             epoch_from = e_load + 1
