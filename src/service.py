@@ -51,7 +51,6 @@ class THoRFrameworkService:
     def write_dataset(target_template, entries_it, is_implicit, label_map=lambda item: item):
         """ THoR-related service for sampling.
         """
-        assert(isinstance(label_map, dict))
 
         records = []
         for e in entries_it:
@@ -60,7 +59,7 @@ class THoRFrameworkService:
             assert(isinstance(e[1], str))   # Entity
             assert(isinstance(e[2], int))   # Explicit Label
             assert(isinstance(e[3], int))   # Implicit label
-            e[2] = label_map[e[2]]
+            e[2] = label_map(e[2])
             e[3] = 1 if is_implicit(e[3]) else 0
             records.append(e)
 
