@@ -145,11 +145,14 @@ class PromptTrainer:
                 self.golds[key] += [gold.tolist()[w] for w in ids]
 
     def report_score(self, mode='valid'):
+        labels = list(range(len(self.config.label_list)))
+
         res = {}
-        res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
+        res['Acc'] = accuracy_score(self.golds['total'], self.preds['total'])
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=labels)
         res['default'] = res['F1']
         res['mode'] = mode
+        res['labels'] = labels
         for k, v in res.items():
             if isinstance(v, float):
                 res[k] = round(v * 100, 3)
@@ -367,11 +370,13 @@ class ThorTrainer:
                 self.golds[key] += [gold.tolist()[w] for w in ids]
 
     def report_score(self, mode='valid'):
+        labels = list(range(len(self.config.label_list)))
         res = {}
-        res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
+        res['Acc'] = accuracy_score(self.golds['total'], self.preds['total'])
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=labels)
         res['default'] = res['F1']
         res['mode'] = mode
+        res['labels'] = labels
         for k, v in res.items():
             if isinstance(v, float):
                 res[k] = round(v * 100, 3)
