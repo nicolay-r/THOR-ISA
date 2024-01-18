@@ -2,6 +2,9 @@ import argparse
 import os
 from os.path import dirname, join, realpath
 
+import yaml
+from attrdict import AttrDict
+
 from src.service import CsvService, THoRFrameworkService, download
 
 
@@ -16,8 +19,10 @@ def convert_se24_prompt_dataset(src, target):
     records_it = [[item[0], item[1], int(item[2]), int(item[3])]
                   for item in CsvService.read(target=src, skip_header=True,
                                               cols=["prompt", "source", "label", "label"])]
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it, label_map={1: 1, 0: 0},
-                                       is_implicit=lambda origin_label: origin_label != 0)
+    no_label_uint = config.labels.index(config.no_label)
+    print(f"No label: {no_label_uint}")
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
+                                       is_implicit=lambda origin_label: origin_label != no_label_uint)
 
 
 if __name__ == "__main__":
@@ -26,7 +31,14 @@ if __name__ == "__main__":
     parser.add_argument('--train', dest="train_data", type=str)
     parser.add_argument('--valid', dest="valid_data", type=str)
     parser.add_argument('--test', dest="test_data", type=str)
+    parser.add_argument('--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
+
+    # Reading configuration.
+    config = AttrDict(yaml.load(open(args.config, 'r', encoding='utf-8'), Loader=yaml.FullLoader))
+    names = []
+    for k, v in vars(args).items():
+        setattr(config, k, v)
 
     data = {
         join(DS_DIR, "train_en.csv"): args.train_data,

@@ -48,7 +48,7 @@ class THoRFrameworkService:
             pickle.dump(content, f)
 
     @staticmethod
-    def write_dataset(target_template, entries_it, label_map, is_implicit):
+    def write_dataset(target_template, entries_it, is_implicit, label_map=lambda item: item):
         """ THoR-related service for sampling.
         """
         assert(isinstance(label_map, dict))
