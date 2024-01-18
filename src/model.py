@@ -33,5 +33,5 @@ class LLMBackbone(nn.Module):
         output = self.engine.generate(input_ids=input_ids, attention_mask=input_masks, max_length=200)
         dec = [self.tokenizer.decode(ids) for ids in output]
         label_dict = {w: i for i, w in enumerate(self.config.label_list)}
-        output = [label_dict.get(w.replace('<pad>', '').replace('</s>', '').strip(), label_dict[self.config.no_label]) for w in dec]
+        output = [label_dict.get(w.lower().replace('<pad>', '').replace('</s>', '').strip(), label_dict[self.config.no_label]) for w in dec]
         return output
