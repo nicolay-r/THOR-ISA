@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn as nn
 
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from collections import defaultdict
 from src.utils import prompt_for_opinion_inferring, prompt_for_polarity_inferring, prompt_for_polarity_label
 
@@ -147,7 +147,8 @@ class PromptTrainer:
     def report_score(self, mode='valid'):
         res = {}
         res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res['default'] = res['Acc_SA']
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=[0, 1])
+        res['default'] = res['F1']
         res['mode'] = mode
         for k, v in res.items():
             if isinstance(v, float):
@@ -368,7 +369,8 @@ class ThorTrainer:
     def report_score(self, mode='valid'):
         res = {}
         res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res['default'] = res['Acc_SA']
+        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=[0, 1])
+        res['default'] = res['F1']
         res['mode'] = mode
         for k, v in res.items():
             if isinstance(v, float):
