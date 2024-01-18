@@ -22,12 +22,16 @@ class Template:
         config.dataname = config.data_name
         set_seed(config.seed)
 
+        if self.config.infer_iter >= -1:
+            config.shuffle = False
+
         config.device = torch.device('cuda:{}'.format(config.cuda_index) if torch.cuda.is_available() else 'cpu')
         names = [config.model_size, config.dataname] + names
         config.save_name = '_'.join(list(map(str, names))) + '_{}.pth.tar'
         self.config = config
 
     def forward(self):
+        print(f"Loading data. Shuffle mode: {self.config.shuffle}")
         (self.trainLoader, self.validLoader, self.testLoader), self.config = MyDataLoader(self.config).get_data()
 
         self.model = LLMBackbone(config=self.config).to(self.config.device)
@@ -52,7 +56,7 @@ class Template:
             return
         if self.config.infer_iter >= -1:
             e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
-            print(f"Final inference. Loading state: {e_load}")
+            print(f"Final inference. Loading state: {e_load}. Shuffle mode: {self.config.shuffle}")
             r = trainer.final_infer(dataLoader=self.testLoader, epoch=e_load)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{e_load}.csv"
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
