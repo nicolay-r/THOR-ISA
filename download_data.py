@@ -1,7 +1,8 @@
+import argparse
 import os
 from os.path import dirname, join, realpath
 
-from src.service import CsvService, THoRFrameworkService, TxtService, download
+from src.service import CsvService, THoRFrameworkService, download
 
 
 def convert_rusentne2023_dataset(src, target):
@@ -12,14 +13,20 @@ def convert_rusentne2023_dataset(src, target):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--valid', dest="valid_data", type=str)
+    parser.add_argument('--test', dest="test_data", type=str)
+    args = parser.parse_args()
+
     current_dir = dirname(realpath(__file__))
     DATA_DIR = join(current_dir, "data")
 
     data = {
         # Data related to RuSentNE competitions.
         join(DATA_DIR, "rusentne2023/train_en.csv"): "https://www.dropbox.com/scl/fi/szj5j87f6w3ershnfh39x/train_data_en.csv?rlkey=h6ve617kl3o8g57otbt3yzamv&dl=1",
-        join(DATA_DIR, "rusentne2023/valid_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_valid_data_link.txt"))[-1],
-        join(DATA_DIR, "rusentne2023/final_en.csv"): TxtService.read_lines(join(DATA_DIR, "rusentne2023_final_data_link.txt"))[-1],
+        join(DATA_DIR, "rusentne2023/valid_en.csv"): args.valid_data,
+        join(DATA_DIR, "rusentne2023/final_en.csv"): args.test_data,
     }
 
     pickle_rusentne2023_data = {
