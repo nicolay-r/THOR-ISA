@@ -47,6 +47,11 @@ class Template:
 
         epoch_from = 0
 
+        if self.config.load_iter >= 0:
+            e_load = self.config.load_iter if self.config.load_iter >= 0 else None
+            print(f"Loading the pre-trained state: {e_load}")
+            trainer.load(self.config.load_iter)
+            epoch_from = e_load + 1
         if self.config.zero_shot == True:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.validLoader, 'valid')
@@ -59,11 +64,6 @@ class Template:
             submission_name = f"{self.config.model_path.replace('/', '_')}-{e_load}.csv"
             CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
             return
-        if self.config.load_iter >= 0:
-            e_load = self.config.load_iter if self.config.load_iter >= 0 else None
-            print(f"Loading the pre-trained state: {e_load}")
-            trainer.load(self.config.load_iter)
-            epoch_from = e_load + 1
 
         print("Fine-tuning mode for training.")
         trainer.train(epoch_from=epoch_from)
