@@ -102,3 +102,6 @@ class RuSentNE2023CodalabService:
         with ZipFile(target, "w") as zip_file:
             results = "\n".join([str(l) for l in labels])
             zip_file.writestr(f'baseline_results.txt', results)
+
+        print(f"Saved: {target}")
+
