@@ -13,18 +13,6 @@ import backoff
 from functools import lru_cache
 
 
-def prompt_direct_inferring(context, target):
-    new_context = f'Given the sentence "{context}", '
-    prompt = new_context + f'what is the sentiment polarity towards {target}?'
-    return new_context, prompt
-
-
-def prompt_direct_inferring_masked(context, target):
-    new_context = f'Given the sentence "{context}", '
-    prompt = new_context + f'the sentiment polarity towards {target} is [mask]'
-    return new_context, prompt
-
-
 def prompt_for_aspect_inferring(context, target):
     new_context = f'Given the sentence "{context}", '
     prompt = new_context + f'which specific aspect of {target} is possibly mentioned?'
