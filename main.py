@@ -57,7 +57,7 @@ class Template:
             print(r)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
             RuSentNE2023CodalabService.save_submission(target=join(self.config.preprocessed_dir, submission_name),
-                                                       labels=trainer.preds)
+                                                       labels=trainer.preds['total'])
             return
 
         print("Fine-tuning mode for training.")
