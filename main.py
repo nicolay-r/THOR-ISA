@@ -56,7 +56,7 @@ class Template:
             r = trainer.final_evaluate(self.config.eval_iter)
             print(r)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
-            RuSentNE2023CodalabService.save_submission(target=join(self.config.processed_dir, submission_name),
+            RuSentNE2023CodalabService.save_submission(target=join(self.config.preprocessed_dir, submission_name),
                                                        labels=trainer.preds)
             return
 
