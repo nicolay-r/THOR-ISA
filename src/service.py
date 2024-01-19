@@ -100,6 +100,7 @@ class RuSentNE2023CodalabService:
         assert(isinstance(labels, list))
         for l in labels:
             assert (isinstance(l, int))
+            assert (l in [0, 1, -1])
 
         counter = Counter()
         with ZipFile(target, "w") as zip_file:

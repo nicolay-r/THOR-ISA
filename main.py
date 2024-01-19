@@ -56,8 +56,9 @@ class Template:
             r = trainer.final_evaluate(self.config.eval_iter)
             print(r)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
+            label_map = {1: 1, 0: 0, 2: -1}
             RuSentNE2023CodalabService.save_submission(target=join(self.config.preprocessed_dir, submission_name),
-                                                       labels=trainer.preds['total'])
+                                                       labels=[label_map[l] for l in trainer.preds['total']])
             return
 
         print("Fine-tuning mode for training.")
