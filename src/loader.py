@@ -3,7 +3,7 @@ import math
 import torch
 import numpy as np
 import pickle as pkl
-from src.utils import prompt_direct_inferring, prompt_direct_inferring_masked, prompt_for_aspect_inferring
+from src.utils import prompt_direct_inferring_sa, prompt_for_aspect_inferring
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -61,10 +61,7 @@ class MyDataLoader:
             new_tokens = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
-                if self.config.zero_shot == True:
-                    _, prompt = prompt_direct_inferring(line, input_targets[i])
-                else:
-                    _, prompt = prompt_direct_inferring_masked(line, input_targets[i])
+                prompt = prompt_direct_inferring_sa(line, input_targets[i])
                 new_tokens.append(prompt)
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',

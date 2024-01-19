@@ -6,16 +6,9 @@ from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
 
 
-def prompt_direct_inferring(context, target):
-    new_context = f'Given the sentence "{context}", '
-    prompt = new_context + f'what is the sentiment polarity towards {target}?'
-    return new_context, prompt
-
-
-def prompt_direct_inferring_masked(context, target):
-    new_context = f'Given the sentence "{context}", '
-    prompt = new_context + f'the sentiment polarity towards {target} is [mask]'
-    return new_context, prompt
+def prompt_direct_inferring_sa(context, target):
+    return f"What's the attitude of the sentence '{context}' to the target '{target}'? " \
+           f"Select one from: positive, negative, neutral."
 
 
 def prompt_for_aspect_inferring(context, target):
