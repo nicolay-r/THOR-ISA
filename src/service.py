@@ -2,6 +2,7 @@ import csv
 import os
 import pickle
 import sys
+from collections import Counter
 from zipfile import ZipFile
 
 import requests
@@ -64,6 +65,7 @@ class THoRFrameworkService:
             e[3] = 1 if is_implicit(e[3]) else 0
             records.append(e)
 
+        print(f"Records written: {len(records)}")
         THoRFrameworkService.__write(target=f"{target_template}.pkl", content=records)
 
 
@@ -94,14 +96,16 @@ class CsvService:
 class RuSentNE2023CodalabService:
 
     @staticmethod
-    def save_submission(target, labels):
+    def save_submission(target, labels, notify=True):
         assert(isinstance(labels, list))
         for l in labels:
             assert (isinstance(l, int))
 
+        counter = Counter()
         with ZipFile(target, "w") as zip_file:
             results = "\n".join([str(l) for l in labels])
             zip_file.writestr(f'baseline_results.txt', results)
 
-        print(f"Saved: {target}")
-
+        if notify:
+            print(f"Saved: {target}")
+            print("Total rows: {}".format(counter["written"]))
