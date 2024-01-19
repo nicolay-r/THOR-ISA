@@ -25,9 +25,12 @@ class Template:
         config.device = torch.device('cuda:{}'.format(config.cuda_index) if torch.cuda.is_available() else 'cpu')
         names = [config.model_size, config.dataname] + names
         config.save_name = '_'.join(list(map(str, names))) + '_{}.pth.tar'
+        if config.eval_iter >= 0:
+            config.shuffle = False
         self.config = config
 
     def forward(self):
+        print(f"Loading data. Shuffle mode: {self.config.shuffle}")
         (self.trainLoader, self.validLoader, self.testLoader), self.config = MyDataLoader(self.config).get_data()
 
         self.model = LLMBackbone(config=self.config).to(self.config.device)
@@ -49,7 +52,7 @@ class Template:
             print(r)
             return
         if self.config.eval_iter >= 0:
-            print("Final evaluation.")
+            print(f"Final evaluation. Loading state: {self.config.eval_iter}")
             r = trainer.final_evaluate(self.config.eval_iter)
             print(r)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
