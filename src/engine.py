@@ -266,15 +266,12 @@ class ThorTrainer:
         losses = []
         for i, data in enumerate(train_data):
             step_one_inferred_output = self.model.generate(**data)
-            self.output_handler(step_one_inferred_output)
 
             step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
             step_two_inferred_output = self.model.generate(**step_one_inferred_data)
-            self.output_handler(step_two_inferred_output)
 
             step_two_inferred_data = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data)
             step_three_inferred_output = self.model.generate(**step_two_inferred_data)
-            self.output_handler(step_three_inferred_output)
 
             step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
             loss = self.model(**step_label_data)
@@ -296,12 +293,15 @@ class ThorTrainer:
         for i, data in tqdm(enumerate(dataiter), total=dataLoader.data_length):
             with torch.no_grad():
                 step_one_inferred_output = self.model.generate(**data)
+                self.output_handler(step_one_inferred_output)
 
                 step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
                 step_two_inferred_output = self.model.generate(**step_one_inferred_data)
+                self.output_handler(step_two_inferred_output)
 
                 step_two_inferred_data = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data)
                 step_three_inferred_output = self.model.generate(**step_two_inferred_data)
+                self.output_handler(step_three_inferred_output)
 
                 step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
                 output = self.model.evaluate(**step_label_data)
