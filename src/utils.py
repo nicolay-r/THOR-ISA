@@ -82,3 +82,16 @@ class ScoreManager:
         best_id = np.argmax(self.score)
         res = self.line[best_id]
         return res
+
+
+class OutputHandler:
+
+    def __init__(self):
+        self.buffer = []
+
+    def forward(self, text):
+        self.buffer.append(text)
+
+    def iter_chunks(self, n):
+        for e in range(0, len(self.buffer), n):
+            yield self.buffer[e:e+n]

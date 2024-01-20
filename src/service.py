@@ -72,6 +72,17 @@ class THoRFrameworkService:
 class CsvService:
 
     @staticmethod
+    def write(target, lines_it, delimiter="\t", quotechar='"', header=None):
+        assert(isinstance(header, list))
+        f = open(target, "w")
+        print(f"Saving: {target}")
+        w = csv.writer(f, delimiter=delimiter, quotechar=quotechar, quoting=csv.QUOTE_MINIMAL)
+        if header is not None:
+            w.writerow(header)
+        for content in lines_it:
+            w.writerow(content)
+
+    @staticmethod
     def read(target, delimiter='\t', quotechar='"', skip_header=False, cols=None, return_row_ids=False):
         assert(isinstance(cols, list) or cols is None)
 

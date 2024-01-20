@@ -6,8 +6,8 @@ import torch
 from attrdict import AttrDict
 import pandas as pd
 
-from src.service import RuSentNE2023CodalabService
-from src.utils import set_seed, load_params_LLM
+from src.service import RuSentNE2023CodalabService, CsvService
+from src.utils import set_seed, load_params_LLM, OutputHandler
 from src.loader import MyDataLoader
 from src.model import LLMBackbone
 from src.engine import PromptTrainer, ThorTrainer
@@ -53,13 +53,19 @@ class Template:
             return
         if self.config.eval_iter >= 0:
             print(f"Final evaluation. Loading state: {self.config.eval_iter}")
+            h = OutputHandler()
+            if self.config.reasoning == 'thor':
+                trainer.output_handler = lambda text: h.forward(text)
             r = trainer.final_evaluate(self.config.eval_iter)
             print(r)
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submisssion.zip"
+            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submission.zip"
             label_map = {1: 1, 0: 0, 2: -1}
             RuSentNE2023CodalabService.save_submission(target=join(self.config.preprocessed_dir, submission_name),
                                                        labels=[label_map[l] for l in trainer.preds['total']])
-            return
+
+            CsvService.write(lines_it=h.iter_chunks(3),
+                             target=join(self.config.preprocessed_dir, submission_name + '.gen.csv'),
+                             header=["s1_aspect", "s2_opinion", "s3_polarity"])
 
         print("Fine-tuning mode for training.")
         trainer.train()
