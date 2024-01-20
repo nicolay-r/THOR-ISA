@@ -66,6 +66,7 @@ class Template:
             CsvService.write(lines_it=h.iter_chunks(3),
                              target=join(self.config.preprocessed_dir, submission_name + '.gen.csv'),
                              header=["s1_aspect", "s2_opinion", "s3_polarity"])
+            return
 
         print("Fine-tuning mode for training.")
         trainer.train()
