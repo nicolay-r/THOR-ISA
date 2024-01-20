@@ -121,10 +121,6 @@ class PromptTrainer:
 
     def report_score(self, mode='valid'):
         res = {}
-        # res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        # res['F1_SA'] = f1_score(self.golds['total'], self.preds['total'], labels=[0, 1, 2], average='macro')
-        # res['F1_ESA'] = f1_score(self.golds['explicits'], self.preds['explicits'], labels=[0, 1, 2], average='macro')
-        # res['F1_ISA'] = f1_score(self.golds['implicits'], self.preds['implicits'], labels=[0, 1, 2], average='macro')
         res["F1_PN"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=[1, 2])
         res["F1_PN0"] = f1_score(self.golds['total'], self.preds['total'], average='macro')
         res['default'] = res['F1_PN0']
@@ -347,10 +343,6 @@ class ThorTrainer:
 
     def report_score(self, mode='valid'):
         res = {}
-        # res['Acc_SA'] = accuracy_score(self.golds['total'], self.preds['total'])
-        # res['F1_SA'] = f1_score(self.golds['total'], self.preds['total'], labels=[0, 1, 2], average='macro')
-        # res['F1_ESA'] = f1_score(self.golds['explicits'], self.preds['explicits'], labels=[0, 1, 2], average='macro')
-        # res['F1_ISA'] = f1_score(self.golds['implicits'], self.preds['implicits'], labels=[0, 1, 2], average='macro')
         res["F1_PN"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=[1, 2])
         res["F1_PN0"] = f1_score(self.golds['total'], self.preds['total'], average='macro')
         res['default'] = res['F1_PN0']
