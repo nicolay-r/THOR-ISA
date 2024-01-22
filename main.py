@@ -31,7 +31,6 @@ class Template:
 
     def forward(self):
         print(f"Loading data. Shuffle mode: {self.config.shuffle}")
-        print(f"Loading data_prefix.{self.config.data_prefix}")
 
         (self.trainLoader, self.validLoader, self.testLoader), self.config = MyDataLoader(self.config).get_data()
 
