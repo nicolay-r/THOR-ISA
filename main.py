@@ -53,11 +53,11 @@ class Template:
             assert(self.config.load_iter < self.config.epoch_size)
             e_load = self.config.load_iter if self.config.load_iter >= 0 else None
             print(f"Loading the pre-trained state: {e_load}")
-            trainer.load(self.config.load_iter)
+            trainer.load_from_epoch(epoch=self.config.load_iter)
             epoch_from = e_load + 1
-        if self.config.load_path >= 0:
+        if self.config.load_path is not None:
             print(f"Loading the pre-trained state: {self.config.load_path}")
-            trainer.load(state_path=self.config.load_path)
+            trainer.load_from_path(state_path=self.config.load_path)
         if self.config.zero_shot is True:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.validLoader, 'valid')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--infer_iter', action='store_true', default=False,
                         help='running infer on specific index')
     parser.add_argument('-li', '--load_iter', default=-1, type=int, help='load a state on specific index')
-    parser.add_argument('-lp', '--load_path', default=None, type=int, help="load a state on specific path")
+    parser.add_argument('-lp', '--load_path', default=None, type=str, help="load a state on specific path")
     parser.add_argument('-d', '--data_name', default=DS_CAUSE_NAME, choices=[DS_CAUSE_NAME, DS_STATE_NAME])
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()

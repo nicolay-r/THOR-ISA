@@ -203,9 +203,12 @@ class ThorTrainer:
                 result["total"] += output
         return result
 
-    def load(self, epoch=0, stat_path=None):
-        PATH = self.save_name.format(epoch) if stat_path is None else stat_path
+    def load_from_epoch(self, epoch=0):
+        PATH = self.save_name.format(epoch)
         self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
+
+    def load_from_path(self, state_path=None):
+        self.model.load_state_dict(torch.load(state_path, map_location=self.config.device)['model'])
 
     def final_infer(self, dataLoader):
         self.model.eval()
