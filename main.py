@@ -58,7 +58,7 @@ class Template:
         if self.config.load_path is not None:
             print(f"Loading the pre-trained state: {self.config.load_path}")
             trainer.load_from_path(state_path=self.config.load_path)
-        if self.config.zero_shot is True:
+        if self.config.validate is True:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.validLoader, 'valid')
             print(r)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--cuda_index', default=0)
     parser.add_argument('-r', '--reasoning', default='thor', choices=['prompt', 'thor'],
                         help='with one-step prompt or multi-step thor reasoning')
-    parser.add_argument('-z', '--zero_shot', action='store_true', default=False,
+    parser.add_argument('-v', '--validate', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
     parser.add_argument('-i', '--infer_iter', action='store_true', default=False,
                         help='running infer on specific index')
