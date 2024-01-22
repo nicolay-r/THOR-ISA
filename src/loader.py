@@ -65,11 +65,11 @@ class MyDataLoader:
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
                                                            max_length=self.config.max_length)
-            batch_input = batch_input.data_sources
+            batch_input = batch_input.data
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data_sources
+                                                            return_tensors="pt").data
 
             res = {
                 'input_ids': batch_input['input_ids'],
@@ -94,17 +94,17 @@ class MyDataLoader:
 
             batch_contexts_A = self.tokenizer.batch_encode_plus(contexts_A, padding=True, return_tensors='pt',
                                                                 max_length=self.config.max_length)
-            batch_contexts_A = batch_contexts_A.data_sources
+            batch_contexts_A = batch_contexts_A.data
             batch_targets = self.tokenizer.batch_encode_plus(list(input_targets), padding=True, return_tensors='pt',
                                                              max_length=self.config.max_length)
-            batch_targets = batch_targets.data_sources
+            batch_targets = batch_targets.data
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
                                                            max_length=self.config.max_length)
-            batch_input = batch_input.data_sources
+            batch_input = batch_input.data
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data_sources
+                                                            return_tensors="pt").data
 
             res = {
                 'input_ids': batch_input['input_ids'],
