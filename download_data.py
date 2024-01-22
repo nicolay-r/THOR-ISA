@@ -72,6 +72,7 @@ if __name__ == "__main__":
     pickle_state_se2024_data = {
         join(DS_STATE_DIR, f"{DS_STATE_NAME}_train"): join(DS_STATE_DIR, "state_train_en.csv"),
         join(DS_STATE_DIR, f"{DS_STATE_NAME}_valid"): join(DS_STATE_DIR, "state_valid_en.csv"),
+        join(DS_STATE_DIR, f"{DS_STATE_NAME}_test"): join(DS_STATE_DIR, "state_valid_en.csv"),
     }
 
     if not os.path.exists(DATA_DIR):
