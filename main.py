@@ -6,8 +6,7 @@ from attrdict import AttrDict
 import pandas as pd
 
 from download_data import DS_CAUSE_NAME, DS_STATE_NAME
-from src.engine_prompt import PromptTrainer
-from src.engine_thor import ThorTrainer
+from src.engine import PromptTrainer, ThorTrainer
 from src.service import CsvService
 from src.utils import set_seed, load_params_LLM
 from src.loader import MyDataLoader
