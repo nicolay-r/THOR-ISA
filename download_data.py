@@ -11,8 +11,11 @@ from src.service import CsvService, THoRFrameworkService, download
 current_dir = dirname(realpath(__file__))
 DATA_DIR = join(current_dir, "data")
 
-DS_NAME = "se24"
-DS_DIR = join(DATA_DIR, DS_NAME)
+DS_CAUSE_NAME = "cause-se24"
+DS_CAUSE_DIR = join(DATA_DIR, DS_CAUSE_NAME)
+
+DS_STATE_NAME = "state-se24"
+DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
 def convert_se24_prompt_dataset(src, target):
@@ -53,22 +56,22 @@ if __name__ == "__main__":
         setattr(config, k, v)
 
     data_sources = {
-        join(DS_DIR, "cause_train_en.csv"): args.cause_train_data,
-        join(DS_DIR, "cause_valid_en.csv"): args.cause_valid_data,
-        join(DS_DIR, "cause_final_en.csv"): args.cause_test_data,
-        join(DS_DIR, "state_train_en.csv"): args.state_train_data,
-        join(DS_DIR, "state_valid_en.csv"): args.state_valid_data,
+        join(DS_CAUSE_DIR, "cause_train_en.csv"): args.cause_train_data,
+        join(DS_CAUSE_DIR, "cause_valid_en.csv"): args.cause_valid_data,
+        join(DS_CAUSE_DIR, "cause_final_en.csv"): args.cause_test_data,
+        join(DS_STATE_DIR, "state_train_en.csv"): args.state_train_data,
+        join(DS_STATE_DIR, "state_valid_en.csv"): args.state_valid_data,
     }
 
     pickle_cause_se2024_data = {
-        join(DS_DIR, f"cause-{DS_NAME}_train"): join(DS_DIR, "cause_train_en.csv"),
-        join(DS_DIR, f"cause-{DS_NAME}_valid"): join(DS_DIR, "cause_valid_en.csv"),
-        join(DS_DIR, f"cause-{DS_NAME}_test"): join(DS_DIR, "cause_final_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_train"): join(DS_CAUSE_DIR, "cause_train_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_valid"): join(DS_CAUSE_DIR, "cause_valid_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_test"): join(DS_CAUSE_DIR, "cause_final_en.csv"),
     }
 
     pickle_state_se2024_data = {
-        join(DS_DIR, f"state-{DS_NAME}_train"): join(DS_DIR, "state_train_en.csv"),
-        join(DS_DIR, f"state-{DS_NAME}_valid"): join(DS_DIR, "state_valid_en.csv"),
+        join(DS_STATE_DIR, f"{DS_STATE_NAME}_train"): join(DS_STATE_DIR, "state_train_en.csv"),
+        join(DS_STATE_DIR, f"{DS_STATE_NAME}_valid"): join(DS_STATE_DIR, "state_valid_en.csv"),
     }
 
     if not os.path.exists(DATA_DIR):

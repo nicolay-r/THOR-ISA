@@ -5,7 +5,7 @@ import torch
 from attrdict import AttrDict
 import pandas as pd
 
-from download_data import DS_NAME
+from download_data import DS_CAUSE_NAME, DS_STATE_NAME
 from src.engine_prompt import PromptTrainer
 from src.engine_thor import ThorTrainer
 from src.service import CsvService
@@ -85,8 +85,7 @@ if __name__ == '__main__':
                         help='running under zero-shot mode or fine-tune mode')
     parser.add_argument('-i', '--infer_iter', default=-2, type=int, help='running infer on specific index')
     parser.add_argument('-l', '--load_iter', default=-1, type=int, help='load a state on specific index')
-    parser.add_argument('-d', '--data_name', default=DS_NAME)
-    parser.add_argument('-d', '--data_prefix', default="cause", choices=["cause", "state"])
+    parser.add_argument('-d', '--data_name', default=DS_CAUSE_NAME, choices=[DS_CAUSE_NAME, DS_STATE_NAME])
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
     template = Template(args)
