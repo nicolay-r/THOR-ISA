@@ -120,7 +120,7 @@ class MyDataLoader:
             return res
 
         else:
-            raise 'choose correct reasoning mode: prompt or thor.'
+            raise Exception('choose correct reasoning mode: prompt or thor.')
 
 
 class Preprocessor:
