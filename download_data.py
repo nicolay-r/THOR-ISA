@@ -25,6 +25,16 @@ def convert_se24_prompt_dataset(src, target):
                                        is_implicit=lambda origin_label: origin_label != no_label_uint)
 
 
+def states_convert_se24_prompt_dataset(src, target):
+    records_it = [[item[0], item[1], int(config.labels_list.index(item[2])), int(config.labels_list.index(item[2]))]
+                  for item in CsvService.read(target=src, skip_header=True,
+                                              cols=["prompt", "target", "emotion"])]
+    no_label_uint = config.label_list.index(config.no_label)
+    print(f"No label: {no_label_uint}")
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
+                                       is_implicit=lambda origin_label: origin_label != no_label_uint)
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -46,16 +56,17 @@ if __name__ == "__main__":
         join(DS_DIR, "cause_train_en.csv"): args.cause_train_data,
         join(DS_DIR, "cause_valid_en.csv"): args.cause_valid_data,
         join(DS_DIR, "cause_final_en.csv"): args.cause_test_data,
-        # ----
         join(DS_DIR, "state_train_en.csv"): args.state_train_data,
         join(DS_DIR, "state_valid_en.csv"): args.state_valid_data,
     }
 
-    pickle_se2024_data = {
+    pickle_cause_se2024_data = {
         join(DS_DIR, f"cause-{DS_NAME}_train"): join(DS_DIR, "cause_train_en.csv"),
         join(DS_DIR, f"cause-{DS_NAME}_valid"): join(DS_DIR, "cause_valid_en.csv"),
         join(DS_DIR, f"cause-{DS_NAME}_test"): join(DS_DIR, "cause_final_en.csv"),
-        # ----
+    }
+
+    pickle_state_se2024_data = {
         join(DS_DIR, f"state-{DS_NAME}_train"): join(DS_DIR, "state_train_en.csv"),
         join(DS_DIR, f"state-{DS_NAME}_valid"): join(DS_DIR, "state_valid_en.csv"),
     }
@@ -66,5 +77,8 @@ if __name__ == "__main__":
     for target, url in data_sources.items():
         download(dest_file_path=target, source_url=url)
 
-    for target, src in pickle_se2024_data.items():
+    for target, src in pickle_cause_se2024_data.items():
         convert_se24_prompt_dataset(src, target)
+
+    for target, src in pickle_state_se2024_data.items():
+        states_convert_se24_prompt_dataset(src, target)
