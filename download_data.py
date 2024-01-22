@@ -11,10 +11,10 @@ from src.service import CsvService, THoRFrameworkService, download
 current_dir = dirname(realpath(__file__))
 DATA_DIR = join(current_dir, "data")
 
-DS_CAUSE_NAME = "cause-se24"
+DS_CAUSE_NAME = "cause_se24"
 DS_CAUSE_DIR = join(DATA_DIR, DS_CAUSE_NAME)
 
-DS_STATE_NAME = "state-se24"
+DS_STATE_NAME = "state_se24"
 DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
