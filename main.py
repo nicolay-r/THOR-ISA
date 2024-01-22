@@ -30,6 +30,8 @@ class Template:
 
     def forward(self):
         print(f"Loading data. Shuffle mode: {self.config.shuffle}")
+        print(f"Loading data_prefix.{self.config.data_prefix}")
+
         (self.trainLoader, self.validLoader, self.testLoader), self.config = MyDataLoader(self.config).get_data()
 
         self.model = LLMBackbone(config=self.config).to(self.config.device)
@@ -83,6 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--infer_iter', default=-2, type=int, help='running infer on specific index')
     parser.add_argument('-l', '--load_iter', default=-1, type=int, help='load a state on specific index')
     parser.add_argument('-d', '--data_name', default=DS_NAME)
+    parser.add_argument('-d', '--data_prefix', default="cause", choices=["cause", "state"])
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
     template = Template(args)

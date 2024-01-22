@@ -65,11 +65,11 @@ class MyDataLoader:
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
                                                            max_length=self.config.max_length)
-            batch_input = batch_input.data
+            batch_input = batch_input.data_sources
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data
+                                                            return_tensors="pt").data_sources
 
             res = {
                 'input_ids': batch_input['input_ids'],
@@ -94,17 +94,17 @@ class MyDataLoader:
 
             batch_contexts_A = self.tokenizer.batch_encode_plus(contexts_A, padding=True, return_tensors='pt',
                                                                 max_length=self.config.max_length)
-            batch_contexts_A = batch_contexts_A.data
+            batch_contexts_A = batch_contexts_A.data_sources
             batch_targets = self.tokenizer.batch_encode_plus(list(input_targets), padding=True, return_tensors='pt',
                                                              max_length=self.config.max_length)
-            batch_targets = batch_targets.data
+            batch_targets = batch_targets.data_sources
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
                                                            max_length=self.config.max_length)
-            batch_input = batch_input.data
+            batch_input = batch_input.data_sources
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data
+                                                            return_tensors="pt").data_sources
 
             res = {
                 'input_ids': batch_input['input_ids'],
@@ -129,18 +129,16 @@ class Preprocessor:
 
     def read_file(self):
         dataname = self.config.dataname
-        train_file = os.path.join(self.config.data_dir, dataname,
-                                  '{}_train.pkl'.format(dataname.capitalize()))
-        valid_file = os.path.join(self.config.data_dir, dataname,
-                                 '{}_valid.pkl'.format(dataname.capitalize()))
-        test_file = os.path.join(self.config.data_dir, dataname,
-                                 '{}_test.pkl'.format(dataname.capitalize()))
+
+        train_file = os.path.join(self.config.data_dir, dataname, f'{self.config.data_prefix}-{dataname}_train.pkl')
+        valid_file = os.path.join(self.config.data_dir, dataname, f'{self.config.data_prefix}-{dataname}_valid.pkl')
+        test_file = os.path.join(self.config.data_dir, dataname, f'{self.config.data_prefix}-{dataname}_test.pkl')
+
         train_data = pkl.load(open(train_file, 'rb'))
         valid_data = pkl.load(open(valid_file, 'rb'))
         test_data = pkl.load(open(test_file, 'rb'))
 
         return [train_data, valid_data, test_data]
-
 
     def forward(self):
         return self.read_file()

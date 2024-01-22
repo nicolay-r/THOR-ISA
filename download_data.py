@@ -28,9 +28,11 @@ def convert_se24_prompt_dataset(src, target):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train', dest="train_data", type=str)
-    parser.add_argument('--valid', dest="valid_data", type=str)
-    parser.add_argument('--test', dest="test_data", type=str)
+    parser.add_argument('--cause-train', dest="cause_train_data", type=str)
+    parser.add_argument('--cause-valid', dest="cause_valid_data", type=str)
+    parser.add_argument('--cause-test', dest="cause_test_data", type=str)
+    parser.add_argument('--state-train', dest="state_train_data", type=str)
+    parser.add_argument('--state-valid', dest="state_valid_data", type=str)
     parser.add_argument('--config', default='./config/config.yaml', help='config file')
     args = parser.parse_args()
 
@@ -40,24 +42,28 @@ if __name__ == "__main__":
     for k, v in vars(args).items():
         setattr(config, k, v)
 
-    data = {
-        join(DS_DIR, "train_en.csv"): args.train_data,
-        join(DS_DIR, "valid_en.csv"): args.valid_data,
-        join(DS_DIR, "final_en.csv"): args.test_data,
+    data_sources = {
+        join(DS_DIR, "cause_train_en.csv"): args.cause_train_data,
+        join(DS_DIR, "cause_valid_en.csv"): args.cause_valid_data,
+        join(DS_DIR, "cause_final_en.csv"): args.cause_test_data,
+        # ----
+        join(DS_DIR, "state_train_en.csv"): args.state_train_data,
+        join(DS_DIR, "state_valid_en.csv"): args.state_valid_data,
     }
 
-    ds_name = DS_NAME[0].upper() + DS_NAME[1:]
-
     pickle_se2024_data = {
-        join(DS_DIR, f"{ds_name}_train"): join(DS_DIR, "train_en.csv"),
-        join(DS_DIR, f"{ds_name}_valid"): join(DS_DIR, "valid_en.csv"),
-        join(DS_DIR, f"{ds_name}_test"): join(DS_DIR, "final_en.csv"),
+        join(DS_DIR, f"cause-{DS_NAME}_train"): join(DS_DIR, "cause_train_en.csv"),
+        join(DS_DIR, f"cause-{DS_NAME}_valid"): join(DS_DIR, "cause_valid_en.csv"),
+        join(DS_DIR, f"cause-{DS_NAME}_test"): join(DS_DIR, "cause_final_en.csv"),
+        # ----
+        join(DS_DIR, f"state-{DS_NAME}_train"): join(DS_DIR, "state_train_en.csv"),
+        join(DS_DIR, f"state-{DS_NAME}_valid"): join(DS_DIR, "state_valid_en.csv"),
     }
 
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
-    for target, url in data.items():
+    for target, url in data_sources.items():
         download(dest_file_path=target, source_url=url)
 
     for target, src in pickle_se2024_data.items():
