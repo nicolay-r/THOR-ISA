@@ -221,10 +221,10 @@ class ThorTrainer:
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',
                                                               max_length=self.config.max_length)
-        batch_inputs = batch_inputs.data_sources
+        batch_inputs = batch_inputs.data
         batch_contexts_B = self.model.tokenizer.batch_encode_plus(contexts_B, padding=True, return_tensors='pt',
                                                                   max_length=self.config.max_length)
-        batch_contexts_B = batch_contexts_B.data_sources
+        batch_contexts_B = batch_contexts_B.data
 
         res = {
             'input_ids': batch_inputs['input_ids'],
@@ -252,10 +252,10 @@ class ThorTrainer:
 
         batch_contexts_C = self.model.tokenizer.batch_encode_plus(contexts_C, padding=True, return_tensors='pt',
                                                                   max_length=self.config.max_length)
-        batch_contexts_C = batch_contexts_C.data_sources
+        batch_contexts_C = batch_contexts_C.data
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',
                                                               max_length=self.config.max_length)
-        batch_inputs = batch_inputs.data_sources
+        batch_inputs = batch_inputs.data
 
         res = {
             'input_ids': batch_inputs['input_ids'],
@@ -279,7 +279,7 @@ class ThorTrainer:
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',
                                                               max_length=3)
-        batch_inputs = batch_inputs.data_sources
+        batch_inputs = batch_inputs.data
 
         res = {
             'input_ids': batch_inputs['input_ids'],
