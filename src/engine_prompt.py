@@ -104,13 +104,11 @@ class PromptTrainer:
                 result["total"] += output
         return result
 
-    def load(self, epoch=0):
-        PATH = self.save_name.format(epoch)
+    def load(self, epoch=0, state_path=None):
+        PATH = self.save_name.format(epoch) if state_path is None else state_path
         self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
 
-    def final_infer(self, dataLoader, epoch=0):
-        if epoch is not None:
-            self.load(epoch)
+    def final_infer(self, dataLoader):
         self.model.eval()
         res = self.infer_step(self.valid_loader if dataLoader is None else dataLoader)
         self.add_instance(res)
