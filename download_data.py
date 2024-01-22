@@ -64,9 +64,9 @@ if __name__ == "__main__":
     }
 
     pickle_cause_se2024_data = {
-        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_train"): join(DS_CAUSE_DIR, "cause_train_en.csv"),
-        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_valid"): join(DS_CAUSE_DIR, "cause_valid_en.csv"),
-        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME}_test"): join(DS_CAUSE_DIR, "cause_final_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_train"): join(DS_CAUSE_DIR, "cause_train_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_valid"): join(DS_CAUSE_DIR, "cause_valid_en.csv"),
+        join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_test"): join(DS_CAUSE_DIR, "cause_final_en.csv"),
     }
 
     pickle_state_se2024_data = {
