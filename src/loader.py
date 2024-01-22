@@ -130,10 +130,12 @@ class Preprocessor:
     def read_file(self):
         dataname = self.config.dataname
 
-        train_file = os.path.join(self.config.data_dir, dataname, f'{dataname}_train.pkl')
-        valid_file = os.path.join(self.config.data_dir, dataname, f'{dataname}_valid.pkl')
-        test_file = os.path.join(self.config.data_dir, dataname, f'{dataname}_test.pkl')
-
+        train_file = os.path.join(self.config.data_dir, dataname,
+                                  '{}_train.pkl'.format(dataname.capitalize()))
+        valid_file = os.path.join(self.config.data_dir, dataname,
+                                 '{}_valid.pkl'.format(dataname.capitalize()))
+        test_file = os.path.join(self.config.data_dir, dataname,
+                                 '{}_test.pkl'.format(dataname.capitalize()))
         train_data = pkl.load(open(train_file, 'rb'))
         valid_data = pkl.load(open(valid_file, 'rb'))
         test_data = pkl.load(open(test_file, 'rb'))
