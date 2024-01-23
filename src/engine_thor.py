@@ -20,9 +20,11 @@ class ThorTrainer:
         self.scores, self.lines = [], []
         self.re_init()
 
-    def train(self):
+    def train(self, epoch_from):
         best_score, best_iter = 0, -1
         for epoch in tqdm(range(self.config.epoch_size)):
+            if epoch < epoch_from:
+                continue
             self.model.global_epoch = epoch
             self.global_epoch = epoch
             self.train_step()
