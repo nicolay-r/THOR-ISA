@@ -94,6 +94,7 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
     parser.add_argument('-p', '--instruct', default=None, type=str,
                         help="instructive prompt for `prompt` training engine that involves `target` parameter only")
+    parser.add_argument('-d', '--debug', default=False, type=str)
     args = parser.parse_args()
     template = Template(args)
     template.forward()
