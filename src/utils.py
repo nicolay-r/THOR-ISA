@@ -9,7 +9,7 @@ from transformers import get_linear_schedule_with_warmup
 def prompt_direct_inferring_emotion(config, context, target):
     new_context = f"Given the conversation: <<{context}>>. "
     prompt = new_context + \
-             config.instruct.replace(target=target) + \
+             config.instruct.format(target=target) + \
              " Choose from: {}.".format(", ".join(config.label_list))
     return prompt
 
