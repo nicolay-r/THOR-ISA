@@ -25,7 +25,7 @@ class Template:
         config.device = torch.device('cuda:{}'.format(config.cuda_index) if torch.cuda.is_available() else 'cpu')
         names = [config.model_size, config.dataname] + names
         config.save_name = '_'.join(list(map(str, names))) + '_{}.pth.tar'
-        if config.infer_iter >= -1:
+        if config.infer_iter is True:
             config.shuffle = False
         self.config = config
 
