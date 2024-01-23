@@ -95,6 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--instruct', default=None, type=str,
                         help="instructive prompt for `prompt` training engine that involves `target` parameter only")
     parser.add_argument('-dbg', '--debug', action='store_true', default=False)
+    parser.add_argument('-es', '--epoch_size', default=None, type=int)
     args = parser.parse_args()
     template = Template(args)
     template.forward()
