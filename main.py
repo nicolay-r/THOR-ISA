@@ -92,6 +92,8 @@ if __name__ == '__main__':
     parser.add_argument('-lp', '--load_path', default=None, type=str, help="load a state on specific path")
     parser.add_argument('-d', '--data_name', default=DS_CAUSE_NAME, choices=[DS_CAUSE_NAME, DS_STATE_NAME])
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
+    parser.add_argument('-p', '--instruct', default=None, type=str,
+                        help="instructive prompt for `prompt` training engine that involves `target` parameter only")
     args = parser.parse_args()
     template = Template(args)
     template.forward()

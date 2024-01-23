@@ -6,26 +6,37 @@ from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
 
 
+def prompt_direct_inferring_emotion(config, context, target):
+    new_context = f"Given the conversation: <<{context}>>. "
+    prompt = new_context + \
+             config.instruct.replace(target=target) + \
+             " Choose from: {}.".format(", ".join(config.label_list))
+    return prompt
+
+
 def prompt_for_aspect_inferring(context, target):
-    new_context = f'Given the sentence "{context}", '
-    prompt = new_context + f'which specific aspect of {target} is possibly mentioned?'
+    new_context = f'Given the conversation "{context}", '
+    prompt = new_context + f'which specific text span of {target} is possibly causes emotion?'
     return new_context, prompt
 
 
 def prompt_for_opinion_inferring(context, target, aspect_expr):
-    new_context = context + ' The mentioned aspect is about ' + aspect_expr + '.'
-    prompt = new_context + f' Based on the common sense, what is the implicit opinion towards the mentioned aspect of {target}, and why?'
+    new_context = context + ' The mentioned text span is about ' + aspect_expr + '.'
+    prompt = new_context + f' Based on the common sense, ' \
+                           f'what is the implicit opinion towards the cause of mentioned text span of {target}, and why?'
     return new_context, prompt
 
 
 def prompt_for_polarity_inferring(context, target, opinion_expr):
-    new_context = context + f' The opinion towards the mentioned aspect of {target} is ' + opinion_expr + '.'
-    prompt = new_context + f' Based on such opinion, what is the sentiment polarity towards {target}?'
+    new_context = context + f' The opinion towards the text span of {target} that causes emotion is ' + opinion_expr + '.'
+    prompt = new_context + f' Based on such opinion, what is the emotion caused by {target} towards the last conversation utterance?'
     return new_context, prompt
 
 
-def prompt_for_polarity_label(context, polarity_expr):
-    prompt = context + f' The sentiment polarity is {polarity_expr}.' + ' Based on these contexts, summarize and return the sentiment polarity only, such as positive, neutral, or negative.'
+def prompt_for_polarity_label(context, polarity_expr, label_list):
+    prompt = context + f' The emotion caused is {polarity_expr}.' + \
+             " Based on these contexts, summarize and return the emotion cause only." + \
+             " Choose from: {}.".format(", ".join(label_list))
     return prompt
 
 

@@ -19,9 +19,9 @@ DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
 def convert_se24_prompt_dataset(src, target):
-    records_it = [[item[0], item[1], int(item[2]), int(item[3])]
+    records_it = [[item[0], item[1], int(item[2]), int(item[2])]
                   for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["prompt", "source", "label", "label"])]
+                                              cols=["context", "source", "label"])]
     no_label_uint = config.label_list.index(config.no_label)
     print(f"No label: {no_label_uint}")
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
@@ -31,7 +31,7 @@ def convert_se24_prompt_dataset(src, target):
 def states_convert_se24_prompt_dataset(src, target):
     records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(item[2]))]
                   for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["prompt", "target", "emotion"])]
+                                              cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
     print(f"No label: {no_label_uint}")
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,

@@ -120,7 +120,7 @@ class ThorTrainer:
 
         new_prompts = []
         for context_C, polarity_expr in zip(contexts_C, polarity_exprs):
-            prompt = prompt_for_polarity_label(context_C, polarity_expr)
+            prompt = prompt_for_polarity_label(context_C, polarity_expr, self.config.label_list)
             new_prompts.append(prompt)
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',

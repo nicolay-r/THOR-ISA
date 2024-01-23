@@ -3,7 +3,7 @@ import math
 import torch
 import numpy as np
 import pickle as pkl
-from src.utils import prompt_for_aspect_inferring
+from src.utils import prompt_for_aspect_inferring, prompt_direct_inferring_emotion
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -61,7 +61,8 @@ class MyDataLoader:
             new_tokens = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
-                new_tokens.append(line)
+                prompt = prompt_direct_inferring_emotion(config=self.config, context=line, target=input_targets[i])
+                new_tokens.append(prompt)
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
                                                            max_length=self.config.max_length)
