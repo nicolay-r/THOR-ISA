@@ -124,7 +124,7 @@ class ThorTrainer:
             new_prompts.append(prompt)
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',
-                                                              max_length=3)
+                                                              max_length=len(self.config.label_list))
         batch_inputs = batch_inputs.data
 
         res = {
