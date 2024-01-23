@@ -62,6 +62,8 @@ class MyDataLoader:
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
                 prompt = prompt_direct_inferring_emotion(config=self.config, context=line, target=input_targets[i])
+                if self.config.debug:
+                    print(prompt)
                 new_tokens.append(prompt)
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',

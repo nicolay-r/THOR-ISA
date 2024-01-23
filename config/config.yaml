@@ -28,3 +28,4 @@ adam_epsilon: 1e-8
 warmup_steps: 0
 weight_decay: 0.01
 seed: 42
+debug: False
