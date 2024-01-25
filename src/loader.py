@@ -57,8 +57,8 @@ class MyDataLoader:
         return res, self.config
 
     def collate_fn(self, data):
-        input_tokens, input_targets, input_labels = zip(*data)
-        if self.config.reasoning == 'prompt':
+        input_tokens, input_targets, input_labels_state, input_labels_cause = zip(*data)
+        if self.config.reasoning == 'prompt_state':
             new_tokens = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
@@ -71,7 +71,7 @@ class MyDataLoader:
                                                            max_length=self.config.max_length)
             batch_input = batch_input.data
 
-            labels = [self.config.label_list[int(w)] for w in input_labels]
+            labels = [self.config.label_list[int(w)] for w in input_labels_state]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list), padding=True,
                                                             return_tensors="pt").data
 
@@ -80,12 +80,12 @@ class MyDataLoader:
                 'input_masks': batch_input['attention_mask'],
                 'output_ids': batch_output['input_ids'],
                 'output_masks': batch_output['attention_mask'],
-                'input_labels': torch.tensor(input_labels),
+                'input_labels': torch.tensor(input_labels_state),
             }
             res = {k: v.to(self.config.device) for k, v in res.items()}
             return res
 
-        elif self.config.reasoning == 'thor':
+        elif self.config.reasoning == 'thor_state':
 
             new_tokens = []
             contexts_A = []
@@ -105,7 +105,7 @@ class MyDataLoader:
                                                            max_length=self.config.max_length)
             batch_input = batch_input.data
 
-            labels = [self.config.label_list[int(w)] for w in input_labels]
+            labels = [self.config.label_list[int(w)] for w in input_labels_state]
             batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list), padding=True,
                                                             return_tensors="pt").data
 
@@ -116,7 +116,50 @@ class MyDataLoader:
                 'target_ids': batch_targets['input_ids'],
                 'output_ids': batch_output['input_ids'],
                 'output_masks': batch_output['attention_mask'],
-                'input_labels': torch.tensor(input_labels),
+                'input_labels': torch.tensor(input_labels_state),
+            }
+            res = {k: v.to(self.config.device) for k, v in res.items()}
+            return res
+
+        elif self.config.reasoning == 'thor_cause':
+
+            new_tokens = []
+            contexts_A = []
+            for i, line in enumerate(input_tokens):
+                line = ' '.join(line.split()[:self.config.max_length - 25])
+                context_step1, prompt = ChainOfThoughtCause.prompt_for_span_inferring(line, input_targets[i])
+                contexts_A.append(context_step1)
+                new_tokens.append(prompt)
+
+            batch_contexts_A = self.tokenizer.batch_encode_plus(contexts_A, padding=True, return_tensors='pt',
+                                                                max_length=self.config.max_length)
+            batch_contexts_A = batch_contexts_A.data
+            batch_targets = self.tokenizer.batch_encode_plus(list(input_targets), padding=True, return_tensors='pt',
+                                                             max_length=self.config.max_length)
+            batch_targets = batch_targets.data
+            batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
+                                                           max_length=self.config.max_length)
+            batch_input = batch_input.data
+
+            labels_cause = [self.config.label_list[int(w)] for w in input_labels_cause]
+            batch_output_cause = self.tokenizer.batch_encode_plus(
+                labels_cause, max_length=len(self.config.label_list), padding=True, return_tensors="pt").data
+
+            labels_state = [self.config.label_list[int(w)] for w in input_labels_state]
+            batch_output_state = self.tokenizer.batch_encode_plus(
+                labels_state, max_length=len(self.config.label_list), padding=True, return_tensors="pt").data
+
+            res = {
+                'input_ids': batch_input['input_ids'],
+                'input_masks': batch_input['attention_mask'],
+                'context_A_ids': batch_contexts_A['input_ids'],
+                'target_ids': batch_targets['input_ids'],
+                'output_state_ids': batch_output_state['input_ids'],
+                'output_cause_ids': batch_output_cause['input_ids'],
+                'output_state_masks': batch_output_state['attention_mask'],
+                'output_cause_masks': batch_output_cause['attention_mask'],
+                'input_labels_cause': torch.tensor(input_labels_cause),
+                'input_labels_state': torch.tensor(input_labels_state),
             }
             res = {k: v.to(self.config.device) for k, v in res.items()}
             return res

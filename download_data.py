@@ -18,18 +18,20 @@ DS_STATE_NAME = "state_se24"
 DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
-def convert_se24_prompt_dataset(src, target):
-    records_it = [[item[0], item[1], int(config.label_list.index(item[2]))]
+def se24_cause(src, target):
+    UNDEFINED_SPEAKER_EMOTION_STATE = "NONE"
+    records_it = [[item[0], item[1], UNDEFINED_SPEAKER_EMOTION_STATE, int(config.label_list.index(item[2]))]
                   for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["context", "source", "label"])]
+                                              cols=["context", "source", "label"])]     # TODO. Provide here the speaker emotion state
     no_label_uint = config.label_list.index(config.no_label)
     print(f"No label: {no_label_uint}")
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
                                        is_implicit=lambda origin_label: origin_label != no_label_uint)
 
 
-def states_convert_se24_prompt_dataset(src, target):
-    records_it = [[item[0], item[1], int(config.label_list.index(item[2]))]
+def se24_states(src, target):
+    UNDEFINED_CAUSE = 'neutral'
+    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(UNDEFINED_CAUSE))]
                   for item in CsvService.read(target=src, skip_header=True,
                                               cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
@@ -82,7 +84,7 @@ if __name__ == "__main__":
         download(dest_file_path=target, source_url=url)
 
     for target, src in pickle_cause_se2024_data.items():
-        convert_se24_prompt_dataset(src, target)
+        se24_cause(src, target)
 
     for target, src in pickle_state_se2024_data.items():
-        states_convert_se24_prompt_dataset(src, target)
+        se24_states(src, target)

@@ -6,10 +6,14 @@ import torch.nn as nn
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, f1_score
 from collections import defaultdict, Counter
-from src.cot_cause import ChainOfThoughtCause
+
+from src.cot_state import ChainOfThoughtState
 
 
-class ThorTrainer:
+class ThorStateTrainer:
+    """ This is a default trainer proposed by authors.
+    """
+
     def __init__(self, model, config, train_loader, valid_loader, test_loader) -> None:
         self.model = model
         self.config = config
@@ -63,7 +67,7 @@ class ThorTrainer:
         new_prompts = []
         contexts_B = []
         for context, target, aspect_expr in zip(contexts_A, targets, aspect_exprs):
-            context_B, prompt = ChainOfThoughtCause.prompt_for_opinion_inferring(context, target, aspect_expr)
+            context_B, prompt = ChainOfThoughtState.prompt_for_opinion_inferring(context, target, aspect_expr)
             new_prompts.append(prompt)
             contexts_B.append(context_B)
 
@@ -94,7 +98,7 @@ class ThorTrainer:
         new_prompts = []
         contexts_C = []
         for context, target, opinion_expr in zip(contexts_B, targets, opinion_exprs):
-            context_C, prompt = ChainOfThoughtCause.prompt_for_emotion_inferring(context, target, opinion_expr)
+            context_C, prompt = ChainOfThoughtState.prompt_for_emotion_inferring(context, target, opinion_expr)
             new_prompts.append(prompt)
             contexts_C.append(context_C)
 
@@ -122,7 +126,7 @@ class ThorTrainer:
 
         new_prompts = []
         for context_C, polarity_expr in zip(contexts_C, polarity_exprs):
-            prompt = ChainOfThoughtCause.prompt_for_emotion_label(context_C, polarity_expr, self.config.label_list)
+            prompt = ChainOfThoughtState.prompt_for_emotion_label(context_C, polarity_expr, self.config.label_list)
             new_prompts.append(prompt)
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',

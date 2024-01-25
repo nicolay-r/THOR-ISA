@@ -7,7 +7,8 @@ import pandas as pd
 
 from download_data import DS_CAUSE_NAME, DS_STATE_NAME
 from src.engine_prompt import PromptTrainer
-from src.engine_thor import ThorTrainer
+from src.engine_thor_cause import ThorCauseTrainer
+from src.engine_thor_state import ThorStateTrainer
 from src.service import CsvService
 from src.utils import set_seed, load_params_LLM
 from src.loader import MyDataLoader
@@ -38,12 +39,15 @@ class Template:
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
 
         print(f"Running on the {self.config.data_name} data.")
-        if self.config.reasoning == 'prompt':
+        if self.config.reasoning == 'prompt_state':
             print("Choosing prompt one-step infer mode.")
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
-        elif self.config.reasoning == 'thor':
+        elif self.config.reasoning == 'thor_state':
             print("Choosing thor multi-step infer mode.")
-            trainer = ThorTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
+            trainer = ThorStateTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
+        elif self.config.reasoning == 'thor_cause':
+            print("Choosing thor multi-step infer mode.")
+            trainer = ThorCauseTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         else:
             raise Exception('Should choose a correct reasoning mode: prompt or thor.')
 
@@ -82,7 +86,7 @@ class Template:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cuda_index', default=0)
-    parser.add_argument('-r', '--reasoning', default='thor', choices=['prompt', 'thor'],
+    parser.add_argument('-r', '--reasoning', default=None, choices=['prompt_state', 'thor_state', 'thor_cause'],
                         help='with one-step prompt or multi-step thor reasoning')
     parser.add_argument('-v', '--validate', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
