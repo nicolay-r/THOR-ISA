@@ -174,7 +174,7 @@ class ThorCauseTrainer:
                                                                   step_two_inferred_data_state, data, label_type="state",
                                                                   prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
             loss_state = self.model(**step_label_data_state)
-            losses_cause.append(loss_state.item())
+            losses_state.append(loss_state.item())
             loss_state.backward()
 
             nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
