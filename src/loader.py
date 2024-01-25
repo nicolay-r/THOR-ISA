@@ -3,7 +3,8 @@ import math
 import torch
 import numpy as np
 import pickle as pkl
-from src.utils import prompt_for_aspect_inferring, prompt_direct_inferring_emotion
+from src.cot_cause import ChainOfThoughtCause
+from src.utils import prompt_direct_inferring_emotion
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -91,7 +92,7 @@ class MyDataLoader:
             contexts_A = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
-                context_step1, prompt = prompt_for_aspect_inferring(line, input_targets[i])
+                context_step1, prompt = ChainOfThoughtCause.prompt_for_span_inferring(line, input_targets[i])
                 contexts_A.append(context_step1)
                 new_tokens.append(prompt)
 
