@@ -19,10 +19,9 @@ DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
 def se24_cause(src, target):
-    UNDEFINED_SPEAKER_EMOTION_STATE = "NONE"
-    records_it = [[item[0], item[1], UNDEFINED_SPEAKER_EMOTION_STATE, int(config.label_list.index(item[2]))]
+    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(item[3]))]
                   for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["context", "source", "label"])]     # TODO. Provide here the speaker emotion state
+                                              cols=["context", "source", "emotion_state", "emotion_cause"])]
     no_label_uint = config.label_list.index(config.no_label)
     print(f"No label: {no_label_uint}")
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
@@ -30,8 +29,7 @@ def se24_cause(src, target):
 
 
 def se24_states(src, target):
-    UNDEFINED_CAUSE = 'neutral'
-    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(UNDEFINED_CAUSE))]
+    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index('neutral'))]
                   for item in CsvService.read(target=src, skip_header=True,
                                               cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
