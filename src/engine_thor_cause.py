@@ -200,10 +200,10 @@ class ThorCauseTrainer:
                                                                        prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
                 step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
 
-                step_label_data = self.prepare_step_label_cause(step_three_inferred_output_cause, step_two_inferred_data_cause, data, label_type="cause",
-                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
-                output = self.model.evaluate(**step_label_data)
-                self.add_output(data, output)
+                step_label_data_cause = self.prepare_step_label_cause(step_three_inferred_output_cause, step_two_inferred_data_cause, data, label_type="cause",
+                                                                      prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+                output_cause = self.model.evaluate(**step_label_data_cause)
+                self.add_output_cause(data, output_cause)
 
         result = self.report_score(mode=mode)
         return result
@@ -252,8 +252,8 @@ class ThorCauseTrainer:
         self.preds, self.golds = defaultdict(list), defaultdict(list)
         self.keys = ['total']
 
-    def add_output(self, data, output):
-        gold = data['input_labels']
+    def add_output_cause(self, data, output):
+        gold = data['input_labels_cause']
         for i, key in enumerate(self.keys):
             if i == 0:
                 self.preds[key] += output
