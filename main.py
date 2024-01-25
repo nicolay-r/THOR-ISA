@@ -53,6 +53,7 @@ class Template:
 
         epoch_from = 0
 
+        e_load = None
         if self.config.load_iter >= 0:
             assert(self.config.load_iter < self.config.epoch_size)
             e_load = self.config.load_iter if self.config.load_iter >= 0 else None
@@ -68,11 +69,18 @@ class Template:
             print(r)
             return
         if self.config.infer_iter is True:
-            e_load = self.config.infer_iter if self.config.infer_iter >= 0 else None
             print(f"Final inference. Loading state: {e_load}. Shuffle mode: {self.config.shuffle}")
             r = trainer.final_infer(dataLoader=self.testLoader)
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{e_load}.csv"
-            CsvService.write(target=submission_name, lines_it=[[l] for l in r["total"]], header=["label"])
+
+            if self.config.reasoning == 'thor_cause':
+                lines_it = [list(r) for r in zip(r["cause"]["total"], r["state"]["total"])]
+                header = ["cause", "state"]
+            else:
+                lines_it = [[r] for r in r["total"]]
+                header = ["cause"]
+
+            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.reasoning}-{e_load}.csv"
+            CsvService.write(target=submission_name, lines_it=lines_it, header=header)
             return
 
         print("Fine-tuning mode for training.")

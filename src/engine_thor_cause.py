@@ -199,11 +199,19 @@ class ThorCauseTrainer:
                 step_two_inferred_data_cause = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
                                                                        prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
                 step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
-
                 step_label_data_cause = self.prepare_step_label_cause(step_three_inferred_output_cause, step_two_inferred_data_cause, data, label_type="cause",
                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
                 output_cause = self.model.evaluate(**step_label_data_cause)
-                self.add_output_cause(data, output_cause)
+
+                step_two_inferred_data_state = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
+                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
+                step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
+                step_label_data_state = self.prepare_step_label_cause(step_three_inferred_output_state, step_two_inferred_data_state, data, label_type="cause",
+                                                                      prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+                output_state = self.model.evaluate(**step_label_data_state)
+
+                self.add_output(data, output_cause, label_type="cause")
+                self.add_output(data, output_state, label_type="state")
 
         result = self.report_score(mode=mode)
         return result
@@ -249,27 +257,33 @@ class ThorCauseTrainer:
         return res
 
     def re_init(self):
-        self.preds, self.golds = defaultdict(list), defaultdict(list)
+        self.l_types = ["state", "cause"]
+        self.preds = {k: defaultdict(dict) for k in self.l_types}
+        self.golds = {k: defaultdict(dict) for k in self.l_types}
         self.keys = ['total']
 
-    def add_output_cause(self, data, output):
-        gold = data['input_labels_cause']
-        for i, key in enumerate(self.keys):
-            if i == 0:
-                self.preds[key] += output
-                self.golds[key] += gold.tolist()
+    def add_output(self, data, output, label_type):
+        assert(label_type in self.l_types)
+        gold = data[f'input_labels_{label_type}']
+        for key in self.keys:
+            self.preds[label_type][key] += output
+            self.golds[label_type][key] += gold.tolist()
 
     def report_score(self, mode='valid'):
-        c = Counter()
-        for l in self.preds['total']:
-            c[l] += 1
+        counter_cause = Counter()
+        for l in self.preds["cause"]['total']:
+            counter_cause[l] += 1
 
         res = {}
-        res['Acc'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
-        res['default'] = res['F1']
+        for t in self.l_types:
+            res[f'Acc_{t}'] = accuracy_score(self.golds[t]['total'], self.preds[t]['total'])
+            res[f"F1_{t}"] = f1_score(self.golds[t]['total'], self.preds[t]['total'], average='macro',
+                                      labels=list(range(len(self.config.label_list))))
+
+        res['default'] = res['F1_cause']
         res['mode'] = mode
-        res['labels'] = c
+        res['labels_cause'] = counter_cause
+
         for k, v in res.items():
             if isinstance(v, float):
                 res[k] = round(v * 100, 3)
