@@ -73,10 +73,10 @@ class Template:
             r = trainer.final_infer(dataLoader=self.testLoader)
 
             if self.config.reasoning == 'thor_cause':
-                lines_it = [list(r) for r in zip(r["cause"]["total"], r["state"]["total"])]
+                lines_it = [list(l) for l in zip(r["cause"]["total"], r["state"]["total"])]
                 header = ["cause", "state"]
             else:
-                lines_it = [[r] for r in r["total"]]
+                lines_it = [[l] for l in r["total"]]
                 header = ["cause"]
 
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.reasoning}-{e_load}.csv"
