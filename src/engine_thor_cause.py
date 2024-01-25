@@ -258,8 +258,8 @@ class ThorCauseTrainer:
 
     def re_init(self):
         self.l_types = ["state", "cause"]
-        self.preds = {k: defaultdict(dict) for k in self.l_types}
-        self.golds = {k: defaultdict(dict) for k in self.l_types}
+        self.preds = {k: defaultdict(list) for k in self.l_types}
+        self.golds = {k: defaultdict(list) for k in self.l_types}
         self.keys = ['total']
 
     def add_output(self, data, output, label_type):
