@@ -228,22 +228,14 @@ class ThorTrainer:
 
     def re_init(self):
         self.preds, self.golds = defaultdict(list), defaultdict(list)
-        self.keys = ['total', 'explicits', 'implicits']
+        self.keys = ['total']
 
     def add_output(self, data, output):
-        is_implicit = data['implicits'].tolist()
         gold = data['input_labels']
         for i, key in enumerate(self.keys):
             if i == 0:
                 self.preds[key] += output
                 self.golds[key] += gold.tolist()
-            else:
-                if i == 1:
-                    ids = np.argwhere(np.array(is_implicit) == 0).flatten()
-                else:
-                    ids = np.argwhere(np.array(is_implicit) == 1).flatten()
-                self.preds[key] += [output[w] for w in ids]
-                self.golds[key] += [gold.tolist()[w] for w in ids]
 
     def report_score(self, mode='valid'):
         c = Counter()
