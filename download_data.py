@@ -61,6 +61,7 @@ if __name__ == "__main__":
     parser.add_argument('--state-train', dest="state_train_data", type=str)
     parser.add_argument('--state-valid', dest="state_valid_data", type=str)
     parser.add_argument('--config', default='./config/config.yaml', help='config file')
+    parser.add_argument('--skip-download', dest="skip_download", action='store_true', default=False)
     args = parser.parse_args()
 
     # Reading configuration.
@@ -92,8 +93,9 @@ if __name__ == "__main__":
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
-    for target, url in data_sources.items():
-        download(dest_file_path=target, source_url=url)
+    if not args.skip_download:
+        for target, url in data_sources.items():
+            download(dest_file_path=target, source_url=url)
 
     for target, src in pickle_cause_se2024_data.items():
         se24_cause(src, target)
