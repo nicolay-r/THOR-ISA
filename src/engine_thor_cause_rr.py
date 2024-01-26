@@ -9,8 +9,8 @@ from collections import defaultdict, Counter
 from src.cot_cause import ChainOfThoughtCause
 
 
-class ThorCauseTrainer:
-    """ This is a default trainer proposed by authors.
+class ThorCauseReasoningRevisionTrainer:
+    """ This is a modified version of the trainer that involves Reasoning Revision.
     """
 
     def __init__(self, model, config, train_loader, valid_loader, test_loader) -> None:
@@ -87,7 +87,7 @@ class ThorCauseTrainer:
         res = {k: v.to(self.config.device) for k, v in res.items()}
         return res
 
-    def prepare_step_three(self, opinion_exprs, data):
+    def prepare_step_three(self, opinion_exprs, data, prompt_func):
         context_B_ids, target_ids = [data[w] for w in 'context_B_ids, target_ids'.strip().split(', ')]
         contexts_B = [self.model.tokenizer.decode(ids) for ids in context_B_ids]
         contexts_B = [context.replace('<pad>', '').replace('</s>', '').strip() for context in contexts_B]
@@ -97,7 +97,7 @@ class ThorCauseTrainer:
         new_prompts = []
         contexts_C = []
         for context, target, opinion_expr in zip(contexts_B, targets, opinion_exprs):
-            context_C, prompt = ChainOfThoughtCause.prompt_for_emotion_cause_inferring(context, target, opinion_expr)
+            context_C, prompt = prompt_func(context, target, opinion_expr)
             new_prompts.append(prompt)
             contexts_C.append(context_C)
 
@@ -116,8 +116,8 @@ class ThorCauseTrainer:
         res = {k: v.to(self.config.device) for k, v in res.items()}
         return res
 
-    def prepare_step_label(self, polarity_exprs, pre_cxt, data):
-        output_ids, output_masks = [data[w] for w in 'output_ids, output_masks'.strip().split(', ')]
+    def prepare_step_label(self, polarity_exprs, pre_cxt, data, label_type, prompt_func):
+        output_ids, output_masks = [data[w] for w in f'output_{label_type}_ids, output_{label_type}_masks'.strip().split(', ')]
 
         context_C_ids = pre_cxt['context_C_ids']
         contexts_C = [self.model.tokenizer.decode(ids) for ids in context_C_ids]
@@ -125,7 +125,7 @@ class ThorCauseTrainer:
 
         new_prompts = []
         for context_C, polarity_expr in zip(contexts_C, polarity_exprs):
-            prompt = ChainOfThoughtCause.prompt_for_emotion_cause_label(context_C, polarity_expr, self.config.label_list)
+            prompt = prompt_func(context_C, polarity_expr, self.config.label_list)
             new_prompts.append(prompt)
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',
@@ -145,23 +145,40 @@ class ThorCauseTrainer:
         self.model.train()
         train_data = tqdm(self.train_loader, total=self.train_loader.data_length)
 
-        losses = []
+        losses_cause = []
+        losses_state = []
         for i, data in enumerate(train_data):
             step_one_inferred_output = self.model.generate(**data)
 
             step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
             step_two_inferred_output = self.model.generate(**step_one_inferred_data)
 
-            step_two_inferred_data = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data)
-            step_three_inferred_output = self.model.generate(**step_two_inferred_data)
+            # Infer cause.
+            step_two_inferred_data_cause = self.prepare_step_three(
+                step_two_inferred_output, step_one_inferred_data, prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
+            step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
 
-            step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
-            loss = self.model(**step_label_data)
-            losses.append(loss.item())
-            loss.backward()
+            step_label_data_cause = self.prepare_step_label(step_three_inferred_output_cause,
+                                                            step_two_inferred_data_cause, data, label_type="cause",
+                                                            prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+            loss_cause = self.model(**step_label_data_cause)
+            losses_cause.append(loss_cause.item())
+            loss_cause.backward()
+
+            # Infer state.
+            step_two_inferred_data_state = self.prepare_step_three(
+                step_two_inferred_output, step_one_inferred_data, prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
+            step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
+
+            step_label_data_state = self.prepare_step_label(step_three_inferred_output_state,
+                                                            step_two_inferred_data_state, data, label_type="state",
+                                                            prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+            loss_state = self.model(**step_label_data_state)
+            losses_state.append(loss_state.item())
+            loss_state.backward()
 
             nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
-            description = "Epoch {}, loss:{:.4f}".format(self.global_epoch, np.mean(losses))
+            description = "Epoch {}, loss_cause:{:.4f}, loss_state:{:.4f}".format(self.global_epoch, np.mean(losses_cause), np.mean(losses_state))
             train_data.set_description(description)
 
             self.config.optimizer.step()
@@ -178,25 +195,41 @@ class ThorCauseTrainer:
                 step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
                 step_two_inferred_output = self.model.generate(**step_one_inferred_data)
 
-                step_two_inferred_data = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data)
-                step_three_inferred_output = self.model.generate(**step_two_inferred_data)
+                # Infer cause.
+                step_two_inferred_data_cause = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
+                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
+                step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
+                step_label_data_cause = self.prepare_step_label(step_three_inferred_output_cause,
+                                                                step_two_inferred_data_cause, data,
+                                                                label_type="cause",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+                output_cause = self.model.evaluate(**step_label_data_cause)
 
-                step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
-                output = self.model.evaluate(**step_label_data)
-                yield data, output
-
-    def evaluate_step(self, dataLoader=None, mode='valid'):
-        self.model.eval()
-        for data, output in self.do_infer_iter(dataLoader):
-            self.add_output(data, output)
-        result = self.report_score(mode=mode)
-        return result
+                # Infer state.
+                step_two_inferred_data_state = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
+                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
+                step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
+                step_label_data_state = self.prepare_step_label(step_three_inferred_output_state,
+                                                                step_two_inferred_data_state, data,
+                                                                label_type="state",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+                output_state = self.model.evaluate(**step_label_data_state)
+                yield data, output_cause, output_state
 
     def final_infer(self, dataLoader):
         self.model.eval()
-        result = defaultdict(list)
-        for _, output in self.do_infer_iter(dataLoader):
-            result["total"] += output
+        result = {k: defaultdict(list) for k in self.l_types}
+        for _, output_cause, output_state in self.do_infer_iter(dataLoader):
+            result["state"]["total"] += output_state
+            result["cause"]["total"] += output_cause
+        return result
+
+    def evaluate_step(self, dataLoader=None, mode='valid'):
+        self.model.eval()
+        for data, output_cause, output_state in self.do_infer_iter(dataLoader=dataLoader):
+            self.add_output(data, output_cause, label_type="cause")
+            self.add_output(data, output_state, label_type="state")
+        result = self.report_score(mode=mode)
         return result
 
     def final_evaluate(self, epoch=0):
@@ -223,27 +256,33 @@ class ThorCauseTrainer:
         return res
 
     def re_init(self):
-        self.preds, self.golds = defaultdict(list), defaultdict(list)
+        self.l_types = ["state", "cause"]
+        self.preds = {k: defaultdict(list) for k in self.l_types}
+        self.golds = {k: defaultdict(list) for k in self.l_types}
         self.keys = ['total']
 
-    def add_output(self, data, output):
-        gold = data['input_labels']
-        for i, key in enumerate(self.keys):
-            if i == 0:
-                self.preds[key] += output
-                self.golds[key] += gold.tolist()
+    def add_output(self, data, output, label_type):
+        assert(label_type in self.l_types)
+        gold = data[f'input_labels_{label_type}']
+        for key in self.keys:
+            self.preds[label_type][key] += output
+            self.golds[label_type][key] += gold.tolist()
 
     def report_score(self, mode='valid'):
-        c = Counter()
-        for l in self.preds['total']:
-            c[l] += 1
+        counter_cause = Counter()
+        for l in self.preds["cause"]['total']:
+            counter_cause[l] += 1
 
         res = {}
-        res['Acc'] = accuracy_score(self.golds['total'], self.preds['total'])
-        res["F1"] = f1_score(self.golds['total'], self.preds['total'], average='macro', labels=list(range(len(self.config.label_list))))
-        res['default'] = res['F1']
+        for t in self.l_types:
+            res[f'Acc_{t}'] = accuracy_score(self.golds[t]['total'], self.preds[t]['total'])
+            res[f"F1_{t}"] = f1_score(self.golds[t]['total'], self.preds[t]['total'], average='macro',
+                                      labels=list(range(len(self.config.label_list))))
+
+        res['default'] = res['F1_cause']
         res['mode'] = mode
-        res['labels'] = c
+        res['labels_cause'] = counter_cause
+
         for k, v in res.items():
             if isinstance(v, float):
                 res[k] = round(v * 100, 3)

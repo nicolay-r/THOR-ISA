@@ -8,6 +8,7 @@ import pandas as pd
 from download_data import DS_CAUSE_NAME, DS_STATE_NAME
 from src.engine_prompt import PromptTrainer
 from src.engine_thor_cause import ThorCauseTrainer
+from src.engine_thor_cause_rr import ThorCauseReasoningRevisionTrainer
 from src.engine_thor_state import ThorStateTrainer
 from src.service import CsvService
 from src.utils import set_seed, load_params_LLM
@@ -39,15 +40,18 @@ class Template:
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
 
         print(f"Running on the {self.config.data_name} data.")
-        if self.config.reasoning == 'prompt_state':
+        if self.config.reasoning in ['prompt_state', 'prompt_cause']:
             print("Choosing prompt one-step infer mode.")
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor_state':
-            print("Choosing thor multi-step infer mode.")
+            print("Choosing thor multi-step THoR-State infer mode.")
             trainer = ThorStateTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor_cause':
-            print("Choosing thor multi-step infer mode.")
+            print("Choosing thor multi-step THoR-Cause infer mode.")
             trainer = ThorCauseTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
+        elif self.config.reasoning == 'thor_cause_rr':
+            print("Choosing thor multi-step THoR-Cause with Reasoning Revision infer mode.")
+            trainer = ThorCauseReasoningRevisionTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         else:
             raise Exception('Should choose a correct reasoning mode: prompt or thor.')
 
@@ -94,7 +98,8 @@ class Template:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cuda_index', default=0)
-    parser.add_argument('-r', '--reasoning', default=None, choices=['prompt_state', 'thor_state', 'thor_cause'],
+    parser.add_argument('-r', '--reasoning', default=None,
+                        choices=['prompt_state', 'prompt_cause', 'thor_state', 'thor_cause', 'thor_cause_rr'],
                         help='with one-step prompt or multi-step thor reasoning')
     parser.add_argument('-v', '--validate', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
@@ -109,6 +114,16 @@ if __name__ == '__main__':
     parser.add_argument('-dbg', '--debug', action='store_true', default=False)
     parser.add_argument('-es', '--epoch_size', default=None, type=int)
     parser.add_argument('-bs', '--batch_size', default=None, type=int)
+
+    default_instructs = {
+        "prompt_cause": "What emotion causes '{target}' towards the last conversation utterance?",
+        "prompt_state": "What emotion state is expressed in '{target}'?",
+    }
+
     args = parser.parse_args()
+
+    if args.instruct is None and args.reasoning in default_instructs:
+        args.instruct = default_instructs[args.reasoning]
+
     template = Template(args)
     template.forward()

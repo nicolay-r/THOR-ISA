@@ -85,6 +85,34 @@ class MyDataLoader:
             res = {k: v.to(self.config.device) for k, v in res.items()}
             return res
 
+        if self.config.reasoning == 'prompt_cause':
+            new_tokens = []
+            for i, line in enumerate(input_tokens):
+                line = ' '.join(line.split()[:self.config.max_length - 25])
+                prompt = prompt_direct_inferring_emotion(config=self.config, context=line, target=input_targets[i])
+                if self.config.debug:
+                    print(prompt)
+                new_tokens.append(prompt)
+
+            batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
+                                                           max_length=self.config.max_length)
+            batch_input = batch_input.data
+
+            labels = [self.config.label_list[int(w)] for w in input_labels_cause]
+            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list),
+                                                            padding=True,
+                                                            return_tensors="pt").data
+
+            res = {
+                'input_ids': batch_input['input_ids'],
+                'input_masks': batch_input['attention_mask'],
+                'output_ids': batch_output['input_ids'],
+                'output_masks': batch_output['attention_mask'],
+                'input_labels': torch.tensor(input_labels_cause),
+            }
+            res = {k: v.to(self.config.device) for k, v in res.items()}
+            return res
+
         elif self.config.reasoning == 'thor_state':
 
             new_tokens = []
@@ -122,6 +150,42 @@ class MyDataLoader:
             return res
 
         elif self.config.reasoning == 'thor_cause':
+
+            new_tokens = []
+            contexts_A = []
+            for i, line in enumerate(input_tokens):
+                line = ' '.join(line.split()[:self.config.max_length - 25])
+                context_step1, prompt = ChainOfThoughtCause.prompt_for_span_inferring(line, input_targets[i])
+                contexts_A.append(context_step1)
+                new_tokens.append(prompt)
+
+            batch_contexts_A = self.tokenizer.batch_encode_plus(contexts_A, padding=True, return_tensors='pt',
+                                                                max_length=self.config.max_length)
+            batch_contexts_A = batch_contexts_A.data
+            batch_targets = self.tokenizer.batch_encode_plus(list(input_targets), padding=True, return_tensors='pt',
+                                                             max_length=self.config.max_length)
+            batch_targets = batch_targets.data
+            batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
+                                                           max_length=self.config.max_length)
+            batch_input = batch_input.data
+
+            labels = [self.config.label_list[int(w)] for w in input_labels_cause]
+            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list), padding=True,
+                                                            return_tensors="pt").data
+
+            res = {
+                'input_ids': batch_input['input_ids'],
+                'input_masks': batch_input['attention_mask'],
+                'context_A_ids': batch_contexts_A['input_ids'],
+                'target_ids': batch_targets['input_ids'],
+                'output_ids': batch_output['input_ids'],
+                'output_masks': batch_output['attention_mask'],
+                'input_labels': torch.tensor(input_labels_cause),
+            }
+            res = {k: v.to(self.config.device) for k, v in res.items()}
+            return res
+
+        elif self.config.reasoning == 'thor_cause_rr':
 
             new_tokens = []
             contexts_A = []

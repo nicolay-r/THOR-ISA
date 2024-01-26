@@ -186,7 +186,7 @@ class ThorStateTrainer:
                 output = self.model.evaluate(**step_label_data)
                 yield data, output
 
-    def evaluate_step(self, dataLoader, mode='valid'):
+    def evaluate_step(self, dataLoader=None, mode='valid'):
         self.model.eval()
         for data, output in self.do_infer_iter(dataLoader):
             self.add_output(data, output)
