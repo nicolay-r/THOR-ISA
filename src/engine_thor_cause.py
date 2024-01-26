@@ -116,7 +116,7 @@ class ThorCauseTrainer:
         res = {k: v.to(self.config.device) for k, v in res.items()}
         return res
 
-    def prepare_step_label_cause(self, polarity_exprs, pre_cxt, data, label_type, prompt_func):
+    def prepare_step_label(self, polarity_exprs, pre_cxt, data, label_type, prompt_func):
         output_ids, output_masks = [data[w] for w in f'output_{label_type}_ids, output_{label_type}_masks'.strip().split(', ')]
 
         context_C_ids = pre_cxt['context_C_ids']
@@ -158,9 +158,9 @@ class ThorCauseTrainer:
                 step_two_inferred_output, step_one_inferred_data, prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
             step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
 
-            step_label_data_cause = self.prepare_step_label_cause(step_three_inferred_output_cause,
-                                                                  step_two_inferred_data_cause, data, label_type="cause",
-                                                                  prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+            step_label_data_cause = self.prepare_step_label(step_three_inferred_output_cause,
+                                                            step_two_inferred_data_cause, data, label_type="cause",
+                                                            prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
             loss_cause = self.model(**step_label_data_cause)
             losses_cause.append(loss_cause.item())
             loss_cause.backward()
@@ -170,9 +170,9 @@ class ThorCauseTrainer:
                 step_two_inferred_output, step_one_inferred_data, prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
             step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
 
-            step_label_data_state = self.prepare_step_label_cause(step_three_inferred_output_state,
-                                                                  step_two_inferred_data_state, data, label_type="state",
-                                                                  prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+            step_label_data_state = self.prepare_step_label(step_three_inferred_output_state,
+                                                            step_two_inferred_data_state, data, label_type="state",
+                                                            prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
             loss_state = self.model(**step_label_data_state)
             losses_state.append(loss_state.item())
             loss_state.backward()
@@ -192,25 +192,27 @@ class ThorCauseTrainer:
             with torch.no_grad():
                 step_one_inferred_output = self.model.generate(**data)
 
+                # Infer cause.
                 step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
                 step_two_inferred_output = self.model.generate(**step_one_inferred_data)
 
                 step_two_inferred_data_cause = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
                                                                        prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
                 step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
-                step_label_data_cause = self.prepare_step_label_cause(step_three_inferred_output_cause,
-                                                                      step_two_inferred_data_cause, data,
-                                                                      label_type="cause",
-                                                                      prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+                step_label_data_cause = self.prepare_step_label(step_three_inferred_output_cause,
+                                                                step_two_inferred_data_cause, data,
+                                                                label_type="cause",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
                 output_cause = self.model.evaluate(**step_label_data_cause)
 
+                # Infer state.
                 step_two_inferred_data_state = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
                                                                        prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
                 step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
-                step_label_data_state = self.prepare_step_label_cause(step_three_inferred_output_state,
-                                                                      step_two_inferred_data_state, data,
-                                                                      label_type="cause",
-                                                                      prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+                step_label_data_state = self.prepare_step_label(step_three_inferred_output_state,
+                                                                step_two_inferred_data_state, data,
+                                                                label_type="state",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
                 output_state = self.model.evaluate(**step_label_data_state)
 
                 self.add_output(data, output_cause, label_type="cause")
