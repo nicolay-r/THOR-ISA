@@ -192,10 +192,10 @@ class ThorCauseTrainer:
             with torch.no_grad():
                 step_one_inferred_output = self.model.generate(**data)
 
-                # Infer cause.
                 step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
                 step_two_inferred_output = self.model.generate(**step_one_inferred_data)
 
+                # Infer cause.
                 step_two_inferred_data_cause = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
                                                                        prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
                 step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
@@ -218,6 +218,43 @@ class ThorCauseTrainer:
                 self.add_output(data, output_cause, label_type="cause")
                 self.add_output(data, output_state, label_type="state")
 
+    def final_infer(self, dataLoader):
+        self.model.eval()
+        dataiter = dataLoader
+        result = {k: defaultdict(list) for k in self.l_types}
+        for i, data in tqdm(enumerate(dataiter), total=dataLoader.data_length):
+            with torch.no_grad():
+                step_one_inferred_output = self.model.generate(**data)
+
+                step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
+                step_two_inferred_output = self.model.generate(**step_one_inferred_data)
+
+                # Infer cause.
+                step_two_inferred_data_cause = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
+                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_inferring)
+                step_three_inferred_output_cause = self.model.generate(**step_two_inferred_data_cause)
+                step_label_data_cause = self.prepare_step_label(step_three_inferred_output_cause,
+                                                                step_two_inferred_data_cause, data,
+                                                                label_type="cause",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_cause_label)
+                output_cause = self.model.evaluate(**step_label_data_cause)
+
+                # Infer state.
+                step_two_inferred_data_state = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data,
+                                                                       prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_inferring)
+                step_three_inferred_output_state = self.model.generate(**step_two_inferred_data_state)
+                step_label_data_state = self.prepare_step_label(step_three_inferred_output_state,
+                                                                step_two_inferred_data_state, data,
+                                                                label_type="state",
+                                                                prompt_func=ChainOfThoughtCause.prompt_for_emotion_state_label)
+                output_state = self.model.evaluate(**step_label_data_state)
+
+                # Collecting the results.
+                result["state"]["total"] += output_state
+                result["cause"]["total"] += output_cause
+
+        return result
+
     def evaluate_step(self, dataLoader=None, mode='valid'):
         self.model.eval()
         self.do_step(dataLoader=dataLoader)
@@ -238,11 +275,6 @@ class ThorCauseTrainer:
 
     def load_from_path(self, state_path=None):
         self.model.load_state_dict(torch.load(state_path, map_location=self.config.device)['model'])
-
-    def final_infer(self, dataLoader):
-        self.model.eval()
-        self.do_step(dataLoader)
-        return self.preds
 
     def add_instance(self, res):
         self.lines.append(res)
