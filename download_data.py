@@ -1,5 +1,6 @@
 import argparse
 import os
+from collections import Counter
 from os.path import dirname, join, realpath
 
 import yaml
@@ -18,23 +19,34 @@ DS_STATE_NAME = "state_se24"
 DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
+def log_display_labels_stat(records_list):
+    e_state = Counter()
+    e_cause = Counter()
+    for _, _, emotion_state, emotion_cause in records_list:
+        e_state[config.label_list[emotion_cause]] += 1
+        e_cause[config.label_list[emotion_state]] += 1
+    print("Emotion State:", e_state)
+    print("Emotion Cause:", e_cause)
+
+
 def se24_cause(src, target):
-    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(item[3]))]
-                  for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["context", "source", "emotion_state", "emotion_cause"])]
+    records_list = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(item[3]))]
+                    for item in CsvService.read(target=src, skip_header=True, cols=["context", "source", "emotion_state", "emotion_cause"])]
+
     no_label_uint = config.label_list.index(config.no_label)
+    log_display_labels_stat(records_list)
     print(f"No label: {no_label_uint}")
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list,
                                        is_implicit=lambda origin_label: origin_label != no_label_uint)
 
 
 def se24_states(src, target):
-    records_it = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index('neutral'))]
-                  for item in CsvService.read(target=src, skip_header=True,
-                                              cols=["context", "target", "emotion"])]
+    records_list = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index('neutral'))]
+                    for item in CsvService.read(target=src, skip_header=True, cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
+    log_display_labels_stat(records_list)
     print(f"No label: {no_label_uint}")
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it,
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list,
                                        is_implicit=lambda origin_label: origin_label != no_label_uint)
 
 
