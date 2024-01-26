@@ -169,8 +169,7 @@ class ThorStateTrainer:
             self.config.scheduler.step()
             self.model.zero_grad()
 
-    def evaluate_step(self, dataLoader=None, mode='valid'):
-        self.model.eval()
+    def do_infer_iter(self, dataLoader=None):
         dataLoader = self.valid_loader if dataLoader is None else dataLoader
         dataiter = dataLoader
         for i, data in tqdm(enumerate(dataiter), total=dataLoader.data_length):
@@ -185,28 +184,20 @@ class ThorStateTrainer:
 
                 step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
                 output = self.model.evaluate(**step_label_data)
-                self.add_output(data, output)
+                yield data, output
 
+    def evaluate_step(self, dataLoader, mode='valid'):
+        self.model.eval()
+        for data, output in self.do_infer_iter(dataLoader):
+            self.add_output(data, output)
         result = self.report_score(mode=mode)
         return result
 
     def final_infer(self, dataLoader):
         self.model.eval()
-        dataiter = dataLoader
         result = defaultdict(list)
-        for i, data in tqdm(enumerate(dataiter), total=dataLoader.data_length):
-            with torch.no_grad():
-                step_one_inferred_output = self.model.generate(**data)
-
-                step_one_inferred_data = self.prepare_step_two(step_one_inferred_output, data)
-                step_two_inferred_output = self.model.generate(**step_one_inferred_data)
-
-                step_two_inferred_data = self.prepare_step_three(step_two_inferred_output, step_one_inferred_data)
-                step_three_inferred_output = self.model.generate(**step_two_inferred_data)
-
-                step_label_data = self.prepare_step_label(step_three_inferred_output, step_two_inferred_data, data)
-                output = self.model.evaluate(**step_label_data)
-                result["total"] += output
+        for _, output in self.do_infer_iter(dataLoader):
+            result["total"] += output
         return result
 
     def final_evaluate(self, epoch=0):
