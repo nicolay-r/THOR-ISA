@@ -23,8 +23,8 @@ def log_display_labels_stat(records_list):
     e_state = Counter()
     e_cause = Counter()
     for _, _, emotion_state, emotion_cause in records_list:
-        e_state[config.label_list[emotion_cause]] += 1
-        e_cause[config.label_list[emotion_state]] += 1
+        e_state[config.label_list[emotion_state]] += 1
+        e_cause[config.label_list[emotion_cause]] += 1
     print("Emotion State:", e_state)
     print("Emotion Cause:", e_cause)
 
@@ -42,7 +42,7 @@ def se24_cause(src, target):
 
 
 def se24_states(src, target):
-    records_list = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index('neutral'))]
+    records_list = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(config.no_label))]
                     for item in CsvService.read(target=src, skip_header=True, cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list,
