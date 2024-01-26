@@ -34,8 +34,7 @@ def se24_cause(src, target):
                     for item in CsvService.read(target=src, skip_header=True, cols=["context", "source", "emotion_state", "emotion_cause"])]
 
     no_label_uint = config.label_list.index(config.no_label)
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list,
-                                       is_implicit=lambda origin_label: origin_label != no_label_uint)
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list)
     print(f"No label: {no_label_uint}")
     log_display_labels_stat(records_list)
     print("---")
@@ -45,8 +44,7 @@ def se24_states(src, target):
     records_list = [[item[0], item[1], int(config.label_list.index(item[2])), int(config.label_list.index(config.no_label))]
                     for item in CsvService.read(target=src, skip_header=True, cols=["context", "target", "emotion"])]
     no_label_uint = config.label_list.index(config.no_label)
-    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list,
-                                       is_implicit=lambda origin_label: origin_label != no_label_uint)
+    THoRFrameworkService.write_dataset(target_template=target, entries_it=records_list)
     print(f"No label: {no_label_uint}")
     log_display_labels_stat(records_list)
     print("---")
