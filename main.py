@@ -42,6 +42,7 @@ class Template:
         print(f"Running on the {self.config.data_name} data.")
         if self.config.reasoning in ['prompt_state', 'prompt_cause']:
             print("Choosing prompt one-step infer mode.")
+            print(f"Infer instruction: {self.config.instruct}")
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor_state':
             print("Choosing thor multi-step THoR-State infer mode.")
