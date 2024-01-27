@@ -55,8 +55,6 @@ class PromptTrainer:
         score = res['default']
         self.add_instance(res)
 
-        save_name = self.save_name.format(epoch)
-
         self.final_score, self.final_res = score, res
 
     def train_step(self):

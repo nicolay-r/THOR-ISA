@@ -54,7 +54,6 @@ class ThorStateTrainer:
         res = self.final_evaluate(best_iter)
         score = res['default']
         self.add_instance(res)
-        save_name = self.save_name.format(epoch)
         self.final_score, self.final_res = score, res
 
     def prepare_step_two(self, aspect_exprs, data):
