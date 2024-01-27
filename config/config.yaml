@@ -16,7 +16,6 @@ train_mode: random
 filters: [3,4,5]
 dropout: 0.5
 shuffle: True
-learning_rate: 1e-4
 bert_lr: 2e-4
 patience: 100
 max_grad_norm: 1.0
