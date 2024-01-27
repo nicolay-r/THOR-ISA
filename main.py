@@ -38,6 +38,7 @@ class Template:
 
         self.model = LLMBackbone(config=self.config).to(self.config.device)
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
+        print("Learning Rate (for training): ", self.config.bert_lr)
 
         print(f"Running on the {self.config.data_name} data.")
         if self.config.reasoning in ['prompt_state', 'prompt_cause']:
