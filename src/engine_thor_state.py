@@ -19,8 +19,6 @@ class ThorStateTrainer:
         self.config = config
         self.train_loader, self.valid_loader, self.test_loader = train_loader, valid_loader, test_loader
         self.save_name = os.path.join(config.target_dir, config.save_name)
-        self.final_score = 0
-        self.final_res = ''
         self.scores, self.lines = [], []
         self.re_init()
 
@@ -50,11 +48,6 @@ class ThorStateTrainer:
                 print("Not upgrade for {} steps, early stopping...".format(self.config.patience))
                 break
             self.model.to(self.config.device)
-
-        res = self.final_evaluate(best_iter)
-        score = res['default']
-        self.add_instance(res)
-        self.final_score, self.final_res = score, res
 
     def prepare_step_two(self, aspect_exprs, data):
         context_A_ids, target_ids = [data[w] for w in 'context_A_ids, target_ids'.strip().split(', ')]
@@ -198,14 +191,6 @@ class ThorStateTrainer:
         for _, output in self.do_infer_iter(dataLoader):
             result["total"] += output
         return result
-
-    def final_evaluate(self, epoch=0):
-        PATH = self.save_name.format(epoch)
-        self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
-        self.model.eval()
-        res = self.evaluate_step(self.valid_loader, mode='valid')
-        self.add_instance(res)
-        return res
 
     def load_from_epoch(self, epoch=0):
         PATH = self.save_name.format(epoch)

@@ -14,9 +14,6 @@ class PromptTrainer:
         self.config = config
         self.train_loader, self.valid_loader, self.test_loader = train_loader, valid_loader, test_loader
         self.save_name = os.path.join(config.target_dir, config.save_name)
-        self.final_score = 0
-        self.final_res = ''
-
         self.scores, self.lines = [], []
         self.re_init()
 
@@ -51,12 +48,6 @@ class PromptTrainer:
                 break
             self.model.to(self.config.device)
 
-        res = self.final_evaluate(best_iter)
-        score = res['default']
-        self.add_instance(res)
-
-        self.final_score, self.final_res = score, res
-
     def train_step(self):
         self.model.train()
         train_data = tqdm(self.train_loader)
@@ -82,14 +73,6 @@ class PromptTrainer:
                 self.add_output(data, output)
         result = self.report_score(mode=mode)
         return result
-
-    def final_evaluate(self, epoch=0):
-        PATH = self.save_name.format(epoch)
-        self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
-        self.model.eval()
-        res = self.evaluate_step(self.valid_loader, mode='valid')
-        self.add_instance(res)
-        return res
 
     def infer_step(self, dataLoader=None):
         self.model.eval()
