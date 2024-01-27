@@ -77,7 +77,7 @@ class Template:
             print(f"Final inference. Loading state: {e_load}. Shuffle mode: {self.config.shuffle}")
             r = trainer.final_infer(dataLoader=self.testLoader)
 
-            if self.config.reasoning == 'thor_cause':
+            if self.config.reasoning == 'thor_cause_rr':
                 lines_it = [list(l) for l in zip(r["cause"]["total"], r["state"]["total"])]
                 header = ["cause", "state"]
             else:
