@@ -31,6 +31,7 @@ class ThorStateTrainer:
             self.global_epoch = epoch
             self.train_step()
             result = self.evaluate_step(mode='valid')
+            print(result)
             self.re_init()
             score = result['default']
             self.add_instance(result)
