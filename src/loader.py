@@ -69,8 +69,8 @@ class MyDataLoader:
             batch_input = batch_input.data
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
-            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data
+            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list),
+                                                            padding=True, return_tensors="pt").data
 
             res = {
                 'input_ids': batch_input['input_ids'],
@@ -104,8 +104,8 @@ class MyDataLoader:
             batch_input = batch_input.data
 
             labels = [self.config.label_list[int(w)] for w in input_labels]
-            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=3, padding=True,
-                                                            return_tensors="pt").data
+            batch_output = self.tokenizer.batch_encode_plus(labels, max_length=len(self.config.label_list),
+                                                            padding=True, return_tensors="pt").data
 
             res = {
                 'input_ids': batch_input['input_ids'],

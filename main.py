@@ -5,6 +5,7 @@ import yaml
 import torch
 from attrdict import AttrDict
 import pandas as pd
+from transformers import GenerationConfig
 
 from src.service import RuSentNE2023CodalabService, CsvService
 from src.utils import set_seed, load_params_LLM, OutputHandler
@@ -44,7 +45,7 @@ class Template:
             print("Choosing thor multi-step infer mode.")
             trainer = ThorTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         else:
-            raise 'Should choose a correct reasoning mode: prompt or thor.'
+            raise Exception('Should choose a correct reasoning mode: prompt or thor.')
 
         if self.config.zero_shot == True:
             print("Zero-shot mode for evaluation.")
@@ -77,6 +78,9 @@ class Template:
 
 
 if __name__ == '__main__':
+
+    gen_config = GenerationConfig()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cuda_index', default=0)
     parser.add_argument('-r', '--reasoning', default='thor', choices=['prompt', 'thor'],
@@ -86,6 +90,11 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--eval_iter', default=-1, type=int, help='running evaluation on specific index')
     parser.add_argument('-d', '--data_name', default='rusentne2023')
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
+    parser.add_argument('-t', '--temperature', default=gen_config.temperature, type=float,
+                        help="Necessary for zero-shot option. For the training the default value of the "
+                             "configuration from the `transformers` is better since we wish to get the same"
+                             "result independing of the chosen path during generation.")
+
     args = parser.parse_args()
     template = Template(args)
     template.forward()
