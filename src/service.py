@@ -56,7 +56,7 @@ class THoRFrameworkService:
 
         records = []
         for e in entries_it:
-            assert(isinstance(e, list) and len(e) == 4)
+            assert(isinstance(e, list) and len(e) == 3)
             assert(isinstance(e[0], str))   # Text
             assert(isinstance(e[1], str))   # Entity
             assert(isinstance(e[2], int))   # Explicit Label
