@@ -6,9 +6,10 @@ from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
 
 
-def prompt_direct_inferring_sa(context, target):
-    return f"What's the attitude of the sentence '{context}' to the target '{target}'? " \
-           f"Select one from: positive, negative, neutral."
+def prompt_direct_inferring_sa(config, context, target):
+    prompt = config.instruct.format(context=context, target=target) + \
+             " Choose from: {}.".format(", ".join(config.label_list))
+    return prompt
 
 
 def set_seed(seed):

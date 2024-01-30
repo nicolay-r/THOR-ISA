@@ -107,6 +107,9 @@ if __name__ == '__main__':
                         help="Necessary for zero-shot option. For the training the default value of the "
                              "configuration from the `transformers` is better since we wish to get the same"
                              "result independing of the chosen path during generation.")
+    parser.add_argument('-p', '--instruct', default=None, type=str,
+                        help="instructive prompt for `prompt` training engine that involves `context` and `target`"
+                             "parameter without need of declaring output labels.")
     parser.add_argument('-cm', '--cot_mode', default='default',
                         help="This is a Chain-of-Thought preset name parameter, necessary for "
                              "chosing the chains for the task.")
