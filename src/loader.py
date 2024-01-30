@@ -62,7 +62,7 @@ class MyDataLoader:
             new_tokens = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
-                prompt = prompt_direct_inferring_sa(line, input_targets[i])
+                prompt = prompt_direct_inferring_sa(self.config, line, input_targets[i])
                 new_tokens.append(prompt)
 
             batch_input = self.tokenizer.batch_encode_plus(new_tokens, padding=True, return_tensors='pt',
