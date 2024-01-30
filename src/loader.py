@@ -22,10 +22,11 @@ class MyDataset(Dataset):
 
 
 class MyDataLoader:
-    def __init__(self, config):
+    def __init__(self, config, thor_cot):
         self.config = config
         config.preprocessor = Preprocessor(config)
         self.tokenizer = AutoTokenizer.from_pretrained(config.model_path)
+        self.thor_cot = thor_cot
 
     def worker_init(self, worked_id):
         worker_seed = torch.initial_seed() % 2 ** 32
@@ -88,7 +89,7 @@ class MyDataLoader:
             contexts_A = []
             for i, line in enumerate(input_tokens):
                 line = ' '.join(line.split()[:self.config.max_length - 25])
-                context_step1, prompt = prompt_for_aspect_inferring(line, input_targets[i])
+                context_step1, prompt = self.thor_cot.prompt_for_aspect_inferring(line, input_targets[i])
                 contexts_A.append(context_step1)
                 new_tokens.append(prompt)
 
@@ -119,7 +120,7 @@ class MyDataLoader:
             return res
 
         else:
-            raise 'choose correct reasoning mode: prompt or thor.'
+            raise Exception('choose correct reasoning mode: prompt or thor.')
 
 
 class Preprocessor:

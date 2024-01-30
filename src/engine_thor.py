@@ -6,10 +6,10 @@ import torch.nn as nn
 from tqdm import tqdm
 from sklearn.metrics import f1_score
 from collections import defaultdict
-from src.utils import prompt_for_opinion_inferring, prompt_for_polarity_inferring, prompt_for_polarity_label
+
 
 class ThorTrainer:
-    def __init__(self, model, config, train_loader, valid_loader, test_loader) -> None:
+    def __init__(self, model, config, train_loader, valid_loader, test_loader, cot) -> None:
         self.model = model
         self.config = config
         self.train_loader, self.valid_loader, self.test_loader = train_loader, valid_loader, test_loader
@@ -19,6 +19,7 @@ class ThorTrainer:
         self.scores, self.lines = [], []
         self.re_init()
         self.output_handler = lambda text: text
+        self.cot = cot
 
     def train(self):
         best_score, best_iter = 0, -1
@@ -61,7 +62,7 @@ class ThorTrainer:
         new_prompts = []
         contexts_B = []
         for context, target, aspect_expr in zip(contexts_A, targets, aspect_exprs):
-            context_B, prompt = prompt_for_opinion_inferring(context, target, aspect_expr)
+            context_B, prompt = self.cot.prompt_for_opinion_inferring(context, target, aspect_expr)
             new_prompts.append(prompt)
             contexts_B.append(context_B)
 
@@ -92,7 +93,7 @@ class ThorTrainer:
         new_prompts = []
         contexts_C = []
         for context, target, opinion_expr in zip(contexts_B, targets, opinion_exprs):
-            context_C, prompt = prompt_for_polarity_inferring(context, target, opinion_expr)
+            context_C, prompt = self.cot.prompt_for_polarity_inferring(context, target, opinion_expr)
             new_prompts.append(prompt)
             contexts_C.append(context_C)
 
@@ -120,7 +121,7 @@ class ThorTrainer:
 
         new_prompts = []
         for context_C, polarity_expr in zip(contexts_C, polarity_exprs):
-            prompt = prompt_for_polarity_label(context_C, polarity_expr)
+            prompt = self.cot.prompt_for_polarity_label(context_C, polarity_expr, self.config.label_list)
             new_prompts.append(prompt)
 
         batch_inputs = self.model.tokenizer.batch_encode_plus(new_prompts, padding=True, return_tensors='pt',

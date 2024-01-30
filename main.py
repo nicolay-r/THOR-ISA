@@ -7,6 +7,8 @@ from attrdict import AttrDict
 import pandas as pd
 from transformers import GenerationConfig
 
+from src.cot_default import ChainOfThoughtDefault
+from src.cot_v2 import ChainOfThoughtRuSentNE2023
 from src.engine_prompt import PromptTrainer
 from src.engine_thor import ThorTrainer
 from src.service import RuSentNE2023CodalabService, CsvService
@@ -31,9 +33,18 @@ class Template:
             config.shuffle = False
         self.config = config
 
+        # Setup COT mode.
+        cot_choices = {
+            "default": ChainOfThoughtDefault,
+            "v2": ChainOfThoughtRuSentNE2023,
+        }
+        self.thor_cot = cot_choices[self.config.cot_mode]
+
     def forward(self):
         print(f"Loading data. Shuffle mode: {self.config.shuffle}")
-        (self.trainLoader, self.validLoader, self.testLoader), self.config = MyDataLoader(self.config).get_data()
+
+        (self.trainLoader, self.validLoader, self.testLoader), self.config = \
+            MyDataLoader(config=self.config, thor_cot=self.thor_cot).get_data()
 
         self.model = LLMBackbone(config=self.config).to(self.config.device)
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
@@ -43,8 +54,9 @@ class Template:
             print("Choosing prompt one-step infer mode.")
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor':
-            print("Choosing thor multi-step infer mode.")
-            trainer = ThorTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
+            print(f"Choosing THoR multi-step infer mode. [{type(self.thor_cot)}]")
+            trainer = ThorTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader,
+                                  cot=self.thor_cot)
         else:
             raise Exception('Should choose a correct reasoning mode: prompt or thor.')
 
@@ -95,6 +107,9 @@ if __name__ == '__main__':
                         help="Necessary for zero-shot option. For the training the default value of the "
                              "configuration from the `transformers` is better since we wish to get the same"
                              "result independing of the chosen path during generation.")
+    parser.add_argument('-cm', '--cot_mode', default='default',
+                        help="This is a Chain-of-Thought preset name parameter, necessary for "
+                             "chosing the chains for the task.")
 
     args = parser.parse_args()
     template = Template(args)
