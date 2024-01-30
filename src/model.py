@@ -14,7 +14,8 @@ class LLMBackbone(nn.Module):
         input_ids, input_masks, output_ids, output_masks'.strip().split(', ')]
         output_ids[output_ids[:, :] == self.tokenizer.pad_token_id] = -100
         output = self.engine(input_ids, attention_mask=input_masks, decoder_input_ids=None,
-                             decoder_attention_mask=output_masks, labels=output_ids)
+                             decoder_attention_mask=output_masks, labels=output_ids,
+                             temperature=self.config.temperature)
         loss = output[0]
         return loss
 
@@ -22,7 +23,7 @@ class LLMBackbone(nn.Module):
         input_ids, input_masks = [kwargs[w] for w in '\
         input_ids, input_masks'.strip().split(', ')]
         output = self.engine.generate(input_ids=input_ids, attention_mask=input_masks,
-                                      max_length=self.config.max_length)
+                                      max_length=self.config.max_length, temperature=self.config.temperature)
         dec = [self.tokenizer.decode(ids) for ids in output]
         output = [context.replace('<pad>', '').replace('</s>', '').strip() for context in dec]
         return output
@@ -30,7 +31,8 @@ class LLMBackbone(nn.Module):
     def evaluate(self, **kwargs):
         input_ids, input_masks = [kwargs[w] for w in '\
         input_ids, input_masks'.strip().split(', ')]
-        output = self.engine.generate(input_ids=input_ids, attention_mask=input_masks, max_length=200)
+        output = self.engine.generate(input_ids=input_ids, attention_mask=input_masks, max_length=200,
+                                      temperature=self.config.temperature)
         dec = [self.tokenizer.decode(ids) for ids in output]
         label_dict = {w: i for i, w in enumerate(self.config.label_list)}
         output = [label_dict.get(w.lower().replace('<pad>', '').replace('</s>', '').strip(), label_dict[self.config.no_label]) for w in dec]

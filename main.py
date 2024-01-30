@@ -4,6 +4,7 @@ import yaml
 import torch
 from attrdict import AttrDict
 import pandas as pd
+from transformers import GenerationConfig
 
 from download_data import DS_CAUSE_NAME, DS_CAUSE_S1_NAME, DS_STATE_NAME
 from src.engine_prompt import PromptTrainer
@@ -39,6 +40,7 @@ class Template:
         self.model = LLMBackbone(config=self.config).to(self.config.device)
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
         print("Learning Rate (for training): ", self.config.bert_lr)
+        print("Model Temperature: ", self.config.temperature)
 
         print(f"Running on the {self.config.data_name} data.")
         if self.config.reasoning in ['prompt_state', 'prompt_cause']:
@@ -98,6 +100,9 @@ class Template:
 
 
 if __name__ == '__main__':
+
+    gen_config = GenerationConfig()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cuda_index', default=0)
     parser.add_argument('-r', '--reasoning', default=None,
@@ -117,6 +122,10 @@ if __name__ == '__main__':
     parser.add_argument('-es', '--epoch_size', default=None, type=int)
     parser.add_argument('-bs', '--batch_size', default=None, type=int)
     parser.add_argument('-lr', '--bert_lr', default=2e-4, type=float)
+    parser.add_argument('-t', '--temperature', default=gen_config.temperature, type=float,
+                        help="Necessary for zero-shot option. For the training the default value of the "
+                             "configuration from the `transformers` is better since we wish to get the same"
+                             "result independing of the chosen path during generation.")
 
     default_instructs = {
         "prompt_cause": "What emotion causes '{target}' towards the last conversation utterance?",
