@@ -3,7 +3,7 @@ import math
 import torch
 import numpy as np
 import pickle as pkl
-from src.utils import prompt_direct_inferring_sa, prompt_for_aspect_inferring
+from src.utils import prompt_direct_inferring_sa
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
 import random
@@ -140,7 +140,6 @@ class Preprocessor:
         test_data = pkl.load(open(test_file, 'rb'))
 
         return [train_data, valid_data, test_data]
-
 
     def forward(self):
         return self.read_file()
