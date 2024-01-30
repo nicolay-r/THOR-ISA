@@ -102,6 +102,7 @@ if __name__ == '__main__':
                         help='with one-step prompt or multi-step thor reasoning')
     parser.add_argument('-z', '--zero_shot', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
+    parser.add_argument('-es', '--epoch_size', default=None, type=int)
     parser.add_argument('-e', '--eval_iter', default=-1, type=int, help='running evaluation on specific index')
     parser.add_argument('-d', '--data_name', default='rusentne2023')
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
@@ -116,7 +117,6 @@ if __name__ == '__main__':
     parser.add_argument('-cm', '--cot_mode', default='default',
                         help="This is a Chain-of-Thought preset name parameter, necessary for "
                              "chosing the chains for the task.")
-    parser.add_argument('-es', '--epoch_size', default=None, type=int)
 
     args = parser.parse_args()
     template = Template(args)
