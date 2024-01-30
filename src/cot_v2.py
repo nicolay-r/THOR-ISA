@@ -1,4 +1,4 @@
-class ChainOfThoughtRuSentNE2023(object):
+class ChainOfThoughtRuSentNE2023:
     """ This is a task-oriented chain-of-thought
     """
 

@@ -57,7 +57,7 @@ class Template:
             print("Choosing prompt one-step infer mode.")
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor':
-            print(f"Choosing THoR multi-step infer mode. [{type(self.thor_cot)}]")
+            print(f"Choosing THoR multi-step infer mode. [{type(self.thor_cot.__class__.__name__)}]")
             trainer = ThorTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader,
                                   cot=self.thor_cot)
         else:

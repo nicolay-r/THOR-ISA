@@ -1,4 +1,4 @@
-class ChainOfThoughtDefault(object):
+class ChainOfThoughtDefault:
 
     @staticmethod
     def prompt_for_aspect_inferring(context, target):
