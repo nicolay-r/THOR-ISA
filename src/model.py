@@ -14,8 +14,7 @@ class LLMBackbone(nn.Module):
         input_ids, input_masks, output_ids, output_masks'.strip().split(', ')]
         output_ids[output_ids[:, :] == self.tokenizer.pad_token_id] = -100
         output = self.engine(input_ids, attention_mask=input_masks, decoder_input_ids=None,
-                             decoder_attention_mask=output_masks, labels=output_ids,
-                             temperature=self.config.temperature)
+                             decoder_attention_mask=output_masks, labels=output_ids)
         loss = output[0]
         return loss
 
