@@ -6,11 +6,10 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from attrdict import AttrDict
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import f1_score
 from collections import defaultdict
 from openai.error import RateLimitError
 import backoff
-from functools import lru_cache
 
 
 def prompt_for_aspect_inferring(context, target):

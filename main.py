@@ -7,11 +7,12 @@ from attrdict import AttrDict
 import pandas as pd
 from transformers import GenerationConfig
 
+from src.engine_prompt import PromptTrainer
+from src.engine_thor import ThorTrainer
 from src.service import RuSentNE2023CodalabService, CsvService
 from src.utils import set_seed, load_params_LLM, OutputHandler
 from src.loader import MyDataLoader
 from src.model import LLMBackbone
-from src.engine import PromptTrainer, ThorTrainer
 
 
 class Template:

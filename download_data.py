@@ -7,8 +7,8 @@ from src.service import CsvService, THoRFrameworkService, download
 
 def convert_rusentne2023_dataset(src, target):
     print(f"Reading source: {src}")
-    records_it = [[item[0], item[1], int(item[2]), int(item[3])]
-                  for item in CsvService.read(target=src, skip_header=True, cols=["sentence", "entity", "label", "label"])]
+    records_it = [[item[0], item[1], int(item[2]), int(item[2])]
+                  for item in CsvService.read(target=src, skip_header=True, cols=["sentence", "entity", "label"])]
     THoRFrameworkService.write_dataset(target_template=target, entries_it=records_it, label_map={1: 1, 0: 0, -1: 2},
                                        is_implicit=lambda origin_label: origin_label != 0)
 
