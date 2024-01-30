@@ -116,6 +116,7 @@ if __name__ == '__main__':
     parser.add_argument('-cm', '--cot_mode', default='default',
                         help="This is a Chain-of-Thought preset name parameter, necessary for "
                              "chosing the chains for the task.")
+    parser.add_argument('-es', '--epoch_size', default=None, type=int)
 
     args = parser.parse_args()
     template = Template(args)
