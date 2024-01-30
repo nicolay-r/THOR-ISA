@@ -56,7 +56,7 @@ class MyDataLoader:
         return res, self.config
 
     def collate_fn(self, data):
-        input_tokens, input_targets, input_labels, implicits = zip(*data)
+        input_tokens, input_targets, input_labels = zip(*data)
         if self.config.reasoning == 'prompt':
             new_tokens = []
             for i, line in enumerate(input_tokens):
@@ -78,7 +78,6 @@ class MyDataLoader:
                 'output_ids': batch_output['input_ids'],
                 'output_masks': batch_output['attention_mask'],
                 'input_labels': torch.tensor(input_labels),
-                'implicits': torch.tensor(implicits)
             }
             res = {k: v.to(self.config.device) for k, v in res.items()}
             return res
@@ -115,7 +114,6 @@ class MyDataLoader:
                 'output_ids': batch_output['input_ids'],
                 'output_masks': batch_output['attention_mask'],
                 'input_labels': torch.tensor(input_labels),
-                'implicits': torch.tensor(implicits)
             }
             res = {k: v.to(self.config.device) for k, v in res.items()}
             return res
