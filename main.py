@@ -62,12 +62,18 @@ class Template:
         epoch_from = 0
 
         e_load = None
+        do_train = not self.config.infer_iter and not self.config.validate
         if self.config.load_iter >= 0:
-            assert(self.config.load_iter < self.config.epoch_size)
             e_load = self.config.load_iter if self.config.load_iter >= 0 else None
             print(f"Loading the pre-trained state: {e_load}")
             trainer.load_from_epoch(epoch=self.config.load_iter)
             epoch_from = e_load + 1
+            if do_train:
+                # We need to make sure that the epochs are correct in the case when we continue training process.
+                assert(self.config.load_iter < self.config.epoch_size)
+                # Register the result so we know the best state before.
+                r = trainer.evaluate_step(self.validLoader, 'valid')
+                trainer.add_instance(r)
         if self.config.load_path is not None:
             print(f"Loading the pre-trained state: {self.config.load_path}")
             trainer.load_from_path(state_path=self.config.load_path)
