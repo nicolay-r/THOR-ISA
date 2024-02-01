@@ -122,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--validate', action='store_true', default=False,
                         help='running under zero-shot mode or fine-tune mode')
     parser.add_argument('-i', '--infer_iter', action='store_true', default=False,
-                        help='running infer on specific index')
+                        help='running infer mode on the `test` data set')
     parser.add_argument('-li', '--load_iter', default=-1, type=int, help='load a state on specific index')
     parser.add_argument('-lp', '--load_path', default=None, type=str, help="load a state on specific path")
     parser.add_argument('-d', '--data_name', default=None, choices=[DS_CAUSE_NAME, DS_STATE_NAME, DS_CAUSE_S1_NAME])
