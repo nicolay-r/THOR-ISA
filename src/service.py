@@ -8,6 +8,13 @@ import requests
 from tqdm import tqdm
 
 
+def save_labels_with_meta(pairs_path_csv, labels_pred_list, target_path_csv, meta_columns, label_columns):
+    meta = list(CsvService.read(target=pairs_path_csv, skip_header=True, cols=meta_columns))
+    assert(len(labels_pred_list) == len(meta))
+    CsvService.write(target=target_path_csv, header=meta_columns + label_columns,
+                     lines_it=[meta[i] + labels_pred_list[i] for i in range(len(labels_pred_list))])
+
+
 def download(dest_file_path, source_url):
     print(('Downloading from {src} to {dest}'.format(src=source_url, dest=dest_file_path)))
 

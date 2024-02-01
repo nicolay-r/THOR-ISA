@@ -22,6 +22,9 @@ DS_STATE_NAME = "state_se24"
 DS_STATE_DIR = join(DATA_DIR, DS_STATE_NAME)
 
 
+CAUSE_FINAL_DATA = join(DS_CAUSE_DIR, "cause_final_en.csv")
+
+
 def log_display_labels_stat(records_list):
     e_state = Counter()
     e_cause = Counter()
@@ -57,7 +60,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--cause-train', dest="cause_train_data", type=str)
-    #parser.add_argument('--cause-train-s1', dest="cause_train_data_s1", type=str)
     parser.add_argument('--cause-valid', dest="cause_valid_data", type=str)
     parser.add_argument('--cause-test', dest="cause_test_data", type=str)
     parser.add_argument('--state-train', dest="state_train_data", type=str)
@@ -74,9 +76,8 @@ if __name__ == "__main__":
 
     data_sources = {
         join(DS_CAUSE_DIR, "cause_train_en.csv"): args.cause_train_data,
-        #join(DS_CAUSE_DIR, "cause_train_sparse_d1_en.csv"): args.cause_train_data_s1,
         join(DS_CAUSE_DIR, "cause_valid_en.csv"): args.cause_valid_data,
-        join(DS_CAUSE_DIR, "cause_final_en.csv"): args.cause_test_data,
+        CAUSE_FINAL_DATA: args.cause_test_data,
         join(DS_STATE_DIR, "state_train_en.csv"): args.state_train_data,
         join(DS_STATE_DIR, "state_valid_en.csv"): args.state_valid_data,
     }
@@ -85,10 +86,6 @@ if __name__ == "__main__":
         join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_train"): join(DS_CAUSE_DIR, "cause_train_en.csv"),
         join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_valid"): join(DS_CAUSE_DIR, "cause_valid_en.csv"),
         join(DS_CAUSE_DIR, f"{DS_CAUSE_NAME.capitalize()}_test"): join(DS_CAUSE_DIR, "cause_final_en.csv"),
-        # The collection below represent a reduced amount of training data.
-        #join(DS_CAUSE_S1_DIR, f"{DS_CAUSE_S1_NAME.capitalize()}_train"): join(DS_CAUSE_DIR, "cause_train_sparse_d1.csv"),
-        #join(DS_CAUSE_S1_DIR, f"{DS_CAUSE_S1_NAME.capitalize()}_valid"): join(DS_CAUSE_DIR, "cause_valid_en.csv"),
-        #join(DS_CAUSE_S1_DIR, f"{DS_CAUSE_S1_NAME.capitalize()}_test"): join(DS_CAUSE_DIR, "cause_final_en.csv"),
     }
 
     pickle_state_se2024_data = {

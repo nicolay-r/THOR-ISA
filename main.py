@@ -6,12 +6,12 @@ from attrdict import AttrDict
 import pandas as pd
 from transformers import GenerationConfig
 
-from download_data import DS_CAUSE_NAME, DS_CAUSE_S1_NAME, DS_STATE_NAME
+from download_data import DS_CAUSE_NAME, DS_CAUSE_S1_NAME, DS_STATE_NAME, CAUSE_FINAL_DATA
 from src.engine_prompt import PromptTrainer
 from src.engine_thor_cause import ThorCauseTrainer
 from src.engine_thor_cause_rr import ThorCauseReasoningRevisionTrainer
 from src.engine_thor_state import ThorStateTrainer
-from src.service import CsvService
+from src.service import save_labels_with_meta
 from src.utils import set_seed, load_params_LLM
 from src.loader import MyDataLoader
 from src.model import LLMBackbone
@@ -87,14 +87,19 @@ class Template:
             r = trainer.final_infer(dataLoader=self.testLoader)
 
             if self.config.reasoning == 'thor_cause_rr':
-                lines_it = [list(l) for l in zip(r["cause"]["total"], r["state"]["total"])]
+                labels_pred_list = [list(l) for l in zip(r["cause"]["total"], r["state"]["total"])]
                 header = ["cause", "state"]
             else:
-                lines_it = [[l] for l in r["total"]]
+                labels_pred_list = [[l] for l in r["total"]]
                 header = ["cause"]
 
-            submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.reasoning}-{e_load}.csv"
-            CsvService.write(target=submission_name, lines_it=lines_it, header=header)
+            save_labels_with_meta(
+                labels_pred_list=labels_pred_list,
+                target_path_csv=f"{self.config.model_path.replace('/', '_')}-{self.config.reasoning}-{e_load}.csv",
+                pairs_path_csv=CAUSE_FINAL_DATA,
+                meta_columns=["c_id", "u1", "u2"],
+                label_columns=header)
+
             return
 
         print("Fine-tuning mode for training.")
