@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--instruct', default=None, type=str,
                         help="instructive prompt for `prompt` training engine that involves `target` parameter only")
     parser.add_argument('-dbg', '--debug', action='store_true', default=False)
-    parser.add_argument('-es', '--epoch_size', default=None, type=int)
+    parser.add_argument('-es', '--epoch_size', default=1, type=int)
     parser.add_argument('-bs', '--batch_size', default=None, type=int)
     parser.add_argument('-lr', '--bert_lr', default=2e-4, type=float)
     parser.add_argument('-t', '--temperature', default=gen_config.temperature, type=float,
