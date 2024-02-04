@@ -36,8 +36,8 @@ class Template:
 
         # Setup COT mode.
         cot_choices = {
-            "default": ChainOfThoughtDefault,
-            "v2": ChainOfThoughtRuSentNE2023,
+            "default": ChainOfThoughtDefault(),
+            "v2": ChainOfThoughtRuSentNE2023(),
         }
         self.thor_cot = cot_choices[self.config.cot_mode]
 
