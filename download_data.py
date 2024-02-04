@@ -6,6 +6,7 @@ from src.service import CsvService, THoRFrameworkService, download
 
 
 LABEL_MAP = {1: 1, 0: 0, -1: 2}
+LABEL_MAP_REVERSE = {v: k for k, v in LABEL_MAP}
 
 
 def convert_rusentne2023_dataset(src, target):

@@ -7,7 +7,7 @@ from attrdict import AttrDict
 import pandas as pd
 from transformers import GenerationConfig
 
-from download_data import LABEL_MAP
+from download_data import LABEL_MAP_REVERSE
 from src.cot_default import ChainOfThoughtDefault
 from src.cot_v2 import ChainOfThoughtRuSentNE2023
 from src.engine_prompt import PromptTrainer
@@ -93,7 +93,7 @@ class Template:
             print(r)
             submission_name = f"{self.config.model_path.replace('/', '_')}-{self.config.eval_iter}-test-submission.zip"
             RuSentNE2023CodalabService.save_submission(target=join(self.config.preprocessed_dir, submission_name),
-                                                       labels=[LABEL_MAP[l] for l in trainer.preds['total']])
+                                                       labels=[LABEL_MAP_REVERSE[l] for l in trainer.preds['total']])
 
             CsvService.write(lines_it=h.iter_chunks(3),
                              target=join(self.config.preprocessed_dir, submission_name + '.gen.csv'),
