@@ -63,6 +63,20 @@ class Template:
         else:
             raise Exception('Should choose a correct reasoning mode: prompt or thor.')
 
+        e_load = None
+        epoch_from = 0
+        do_train = not self.config.infer_iter and not self.config.validate
+        if self.config.load_iter >= 0:
+            e_load = self.config.load_iter if self.config.load_iter >= 0 else None
+            print(f"Loading the pre-trained state: {e_load}")
+            trainer.load_from_epoch(epoch=self.config.load_iter)
+            epoch_from = e_load + 1
+            if do_train:
+                # We need to make sure that the epochs are correct in the case when we continue training process.
+                assert (self.config.load_iter < self.config.epoch_size)
+                # Register the result so we know the best state before.
+                r = trainer.evaluate_step(self.validLoader, 'valid')
+                trainer.add_instance(r)
         if self.config.zero_shot == True:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.testLoader, 'test')
@@ -106,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--eval_iter', default=-1, type=int, help='running evaluation on specific index')
     parser.add_argument('-d', '--data_name', default='rusentne2023')
     parser.add_argument('-f', '--config', default='./config/config.yaml', help='config file')
+    parser.add_argument('-li', '--load_iter', default=-1, type=int, help='load a state on specific index')
     parser.add_argument('-t', '--temperature', default=gen_config.temperature, type=float,
                         help="Necessary for zero-shot option. For the training the default value of the "
                              "configuration from the `transformers` is better since we wish to get the same"
