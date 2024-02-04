@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--instruct', default=None, type=str,
                         help="instructive prompt for `prompt` training engine that involves `context` and `target`"
                              "parameter without need of declaring output labels.")
-    parser.add_argument('-bs', '--batch_size', default=None, type=int)
+    parser.add_argument('-bs', '--batch_size', default=1, type=int)
     parser.add_argument('-cm', '--cot_mode', default='default',
                         help="This is a Chain-of-Thought preset name parameter, necessary for "
                              "chosing the chains for the task.")
