@@ -20,10 +20,12 @@ class PromptTrainer:
         self.scores, self.lines = [], []
         self.re_init()
 
-    def train(self):
+    def train(self, epoch_from=0):
         best_score, best_iter = 0, -1
         epoch = -1
         for epoch in tqdm(range(self.config.epoch_size)):
+            if epoch < epoch_from:
+                continue
             self.model.global_epoch = epoch
             self.global_epoch = epoch
             self.train_step()
@@ -80,6 +82,10 @@ class PromptTrainer:
                 self.add_output(data, output)
         result = self.report_score(mode=mode)
         return result
+    
+    def load_from_epoch(self, epoch=0):
+        PATH = self.save_name.format(epoch)
+        self.model.load_state_dict(torch.load(PATH, map_location=self.config.device)['model'])
 
     def final_evaluate(self, epoch=0):
         PATH = self.save_name.format(epoch)

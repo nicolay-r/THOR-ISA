@@ -65,7 +65,9 @@ class Template:
 
         e_load = None
         epoch_from = 0
-        do_train = not self.config.infer_iter and not self.config.validate
+        do_zero_shot = self.config.zero_shot == True
+        do_final_evaluation = self.config.eval_iter >= 0
+        do_train = not do_zero_shot and not do_final_evaluation
         if self.config.load_iter >= 0:
             e_load = self.config.load_iter if self.config.load_iter >= 0 else None
             print(f"Loading the pre-trained state: {e_load}")
@@ -77,12 +79,12 @@ class Template:
                 # Register the result so we know the best state before.
                 r = trainer.evaluate_step(self.validLoader, 'valid')
                 trainer.add_instance(r)
-        if self.config.zero_shot == True:
+        if do_zero_shot:
             print("Zero-shot mode for evaluation.")
             r = trainer.evaluate_step(self.testLoader, 'test')
             print(r)
             return
-        if self.config.eval_iter >= 0:
+        if do_final_evaluation:
             print(f"Final evaluation. Loading state: {self.config.eval_iter}")
             h = OutputHandler()
             if self.config.reasoning == 'thor':
@@ -99,7 +101,7 @@ class Template:
             return
 
         print("Fine-tuning mode for training.")
-        trainer.train()
+        trainer.train(epoch_from=epoch_from)
         lines = trainer.lines
 
         df = pd.DataFrame(lines)
