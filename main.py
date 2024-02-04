@@ -41,6 +41,14 @@ class Template:
         }
         self.thor_cot = cot_choices[self.config.cot_mode]
 
+        if self.config.instruct is None and self.config.reasoning == "prompt":
+            presets = {
+                "default": "What's the attitude of the sentence '{context}', to the target '{target}'?",
+                "v2": "What is the attitude of the author or another subject in the sentence '{context}' "
+                      "to the target '{target}'?",
+            }
+            self.config.instruct = presets[self.config.cot_mode]
+
     def forward(self):
         print(f"Loading data. Shuffle mode: {self.config.shuffle}")
 
@@ -55,6 +63,7 @@ class Template:
         print(f"Running on the {self.config.data_name} data.")
         if self.config.reasoning == 'prompt':
             print("Choosing prompt one-step infer mode.")
+            print("Prompt: {}".format(self.config.instruct))
             trainer = PromptTrainer(self.model, self.config, self.trainLoader, self.validLoader, self.testLoader)
         elif self.config.reasoning == 'thor':
             print(f"Choosing THoR multi-step infer mode. [{type(self.thor_cot.__class__.__name__)}]")
