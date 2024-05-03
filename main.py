@@ -12,10 +12,10 @@ from src.cot_default import ChainOfThoughtDefault
 from src.cot_v2 import ChainOfThoughtRuSentNE2023
 from src.engine_prompt import PromptTrainer
 from src.engine_thor import ThorTrainer
+from src.model_flant5 import FlanT5Backbone
 from src.service import RuSentNE2023CodalabService, CsvService
 from src.utils import set_seed, load_params_LLM, OutputHandler
 from src.loader import MyDataLoader
-from src.model import LLMBackbone
 
 
 class Template:
@@ -55,7 +55,7 @@ class Template:
         (self.trainLoader, self.validLoader, self.testLoader), self.config = \
             MyDataLoader(config=self.config, thor_cot=self.thor_cot).get_data()
 
-        self.model = LLMBackbone(config=self.config).to(self.config.device)
+        self.model = FlanT5Backbone(config=self.config).to(self.config.device)
         self.config = load_params_LLM(self.config, self.model, self.trainLoader)
         print("Learning Rate (for training): ", self.config.bert_lr)
         print("Model Temperature: ", self.config.temperature)

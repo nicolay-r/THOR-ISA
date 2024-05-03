@@ -1,15 +1,27 @@
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, T5ForConditionalGeneration
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
-class LLMBackbone(nn.Module):
+class Phi3Backbone(nn.Module):
     def __init__(self, config):
-        super(LLMBackbone, self).__init__()
+        super(Phi3Backbone, self).__init__()
         self.config = config
-        self.engine = T5ForConditionalGeneration.from_pretrained(
-            config.model_path, torch_dtype=torch.bfloat16 if config.use_bf16 else None)
-        self.tokenizer = AutoTokenizer.from_pretrained(config.model_path)
+
+        checkpoint_path = "microsoft/Phi-3-mini-4k-instruct"
+        model_kwargs = dict(
+            use_cache=False,
+            trust_remote_code=True,
+            attn_implementation="flash_attention_2",  # loading the model with flash-attenstion support
+            torch_dtype=torch.bfloat16,
+            device_map=None
+        )
+        self.engine = AutoModelForCausalLM.from_pretrained(checkpoint_path, **model_kwargs)
+        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
+        self.tokenizer.model_max_length = 2048
+        self.tokenizer.pad_token = self.tokenizer.unk_token  # use unk rather than eos token to prevent endless generation
+        self.tokenizer.pad_token_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
+        self.tokenizer.padding_side = 'right'
 
     def forward(self, **kwargs):
         input_ids, input_masks, output_ids, output_masks = [kwargs[w] for w in '\
@@ -19,6 +31,10 @@ class LLMBackbone(nn.Module):
                              decoder_attention_mask=output_masks, labels=output_ids)
         loss = output[0]
         return loss
+
+    def __map_label(self):
+        # TODO. Setup label mapping.
+        pass
 
     def generate(self, **kwargs):
         input_ids, input_masks = [kwargs[w] for w in '\
@@ -36,5 +52,6 @@ class LLMBackbone(nn.Module):
                                       temperature=self.config.temperature)
         dec = [self.tokenizer.decode(ids) for ids in output]
         label_dict = {w: i for i, w in enumerate(self.config.label_list)}
-        output = [label_dict.get(w.lower().replace('<pad>', '').replace('</s>', '').strip(), label_dict[self.config.no_label]) for w in dec]
+        output = [label_dict.get(w.lower().replace('<pad>', '').replace('</s>', '').strip(),
+                                 label_dict[self.config.no_label]) for w in dec]
         return output
